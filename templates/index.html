@@ -9,6 +9,12 @@
       {{ user.username }}:<br />
       Level {{ user.level }}<br />
       {{ user.xp }} / {{ user.xp_required }} XP<br />
+      <div class="progress-container">
+        <progress value="{{ user.xp }}" max="{{ user.xp_required }}"></progress>
+        <div class="progress-text">
+          {{ user.xp / user.xp_required * 100 | round }}%
+        </div>
+      </div>
       Add New Task<br />
       <form action="{{ url_for('add_task') }}" method="post">
         Name: <input type="text" id="name" name="name" /><br />
