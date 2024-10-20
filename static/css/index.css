@@ -1,0 +1,26 @@
+* {
+    font-family: system-ui,  Arial, Helvetica, sans-serif;
+    line-height: 125%;
+}
+progress {
+    height: 50px;
+    padding: 5px;
+    max-width: 300px;
+    width: 100%;
+    accent-color: #4888c8;
+}
+.progress-container {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+}
+.progress-bar{
+    width: 100%;
+}
+.progress-text{
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 15px;
+    color: black;
+}
