@@ -1,28 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <title>Endless Task List App using Flask</title>
-    </head>
-    <body>
-        <h1>Endless Task List App using Flask</h1>
-        <ul>
-            {{ user.username }}:<br>
-            Level {{ user.level }}<br>
-            {{ user.xp }} / {{ user.xp_required }} XP<br>
-            Add New Task<br>
-            <form action="{{ url_for('add_task') }}" method="post">
-                Name: <input type="text" id="name" name="name">
-                <input type="submit" value="Add Task">
-            </form>
-            <ul>
-                {% for task in tasks %}
-                    <li>{{ task.name }}</li>
-                {% if not task.completed %}
-                    <a href="/complete_task/{{ task.id }}">Complete</a>
-                        {% endif %}
-                        <a href="/delete_task/{{ task.id }}">Delete</a>
-                {% endfor %}
-            </ul>
-        </ul>
-    </body>
+  <head>
+    <title>Endless Task List App using Flask</title>
+  </head>
+  <body>
+    <h1>Endless Task List App using Flask</h1>
+    <ul>
+      {{ user.username }}:<br />
+      Level {{ user.level }}<br />
+      {{ user.xp }} / {{ user.xp_required }} XP<br />
+      Add New Task<br />
+      <form action="{{ url_for('add_task') }}" method="post">
+        Name: <input type="text" id="name" name="name" />
+        <input type="submit" value="Add Task" />
+      </form>
+      <ul>
+        {% for task in tasks %}
+        <li>{{ task.name }}</li>
+        {% if not task.completed %}
+        <a href="/complete_task/{{ task.id }}">Complete</a>
+        {% endif %}
+        <a href="/delete_task/{{ task.id }}">Delete</a>
+        {% endfor %}
+      </ul>
+    </ul>
+  </body>
 </html>
