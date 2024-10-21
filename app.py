@@ -47,9 +47,11 @@ def index():
 @app.route("/add", methods=["POST"])
 def add_task():
     name = request.form.get("name")
-    new_task = Task(name=name)
-    db.session.add(new_task)
-    db.session.commit()
+    user = User.query.first()
+    if user:
+        new_task = Task(name=name, user_id=user.id)
+        db.session.add(new_task)
+        db.session.commit()
     return redirect(url_for("index"))
 
 
@@ -61,8 +63,7 @@ def complete_task(task_id):
         user = User.query.first()
         if user:
             user.add_xp(1)
-
-    db.session.commit()
+            db.session.commit()
     return redirect(url_for("index"))
 
 
