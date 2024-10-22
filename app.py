@@ -96,14 +96,17 @@ def init_db():  # initialize database
             db.session.commit()  # commit database changes
         if "due_date" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:
+        ]:  # check if due date column is not in task table
             db.session.execute(
-                text("ALTER TABLE task ADD COLUMN due_date DATE"))
-        tasks = Task.query.all()
-        for task in tasks:
-            if task.due_date is None:
-                task.due_date = datetime.now().date()
-        db.session.commit()
+                text("ALTER TABLE task ADD COLUMN due_date DATE")
+            )  # create due date column
+        tasks = Task.query.all()  # get list of tasks
+        for task in tasks:  # repeat for each task
+            if task.due_date is None:  # check if task due date is none
+                task.due_date = (
+                    datetime.now().date()
+                )  # set task due date to today's date
+        db.session.commit()  # commit database changes
 
 
 if __name__ == "__main__":
