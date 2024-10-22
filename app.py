@@ -1,6 +1,9 @@
+from datetime import datetime
 import math
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
@@ -9,8 +12,10 @@ db = SQLAlchemy(app)
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)  # user id
-    username = db.Column(db.String(80), unique=True, nullable=False)  # username
+    id = db.Column(db.Integer, primary_key=True,
+                   unique=True, nullable=False)  # user id
+    username = db.Column(db.String(80), unique=True,
+                         nullable=False)  # username
     xp = db.Column(db.Float, default=0)  # user XP
     xp_required = db.Column(db.Float, default=1)  # user XP required
     total_xp = db.Column(db.Float, default=0)  # user total XP
@@ -33,13 +38,17 @@ class User(db.Model):
 
 
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)  # task id
+    id = db.Column(db.Integer, primary_key=True,
+                   unique=True, nullable=False)  # task id
     name = db.Column(db.String(80))  # task name
+    due_date = db.Column(
+        db.Date, default=datetime.now().date())  # task due date
     completed = db.Column(db.Boolean, default=False)  # is task completed
     user_id = db.Column(
         db.Integer, db.ForeignKey(User.__tablename__ + ".id")
     )  # user id
-    user = db.relationship("User", backref=db.backref("tasks", lazy=True))  # user
+    user = db.relationship(
+        "User", backref=db.backref("tasks", lazy=True))  # user
 
 
 @app.route("/")
@@ -54,9 +63,13 @@ def index():  # get index page template
 @app.route("/add", methods=["POST"])
 def add_task():  # add task to task list
     name = request.form.get("name")  # get name from request form
+    due_date = request.form.get("due_date")  # get due date
     user = User.query.first()  # get first user
     if user:
-        new_task = Task(name=name, user_id=user.id)
+        new_task = Task(
+            name=name, user_id=user.id, due_date=datetime.strptime(
+                due_date, "%Y-%m-%d")
+        )
         db.session.add(new_task)  # add new task to task list
         db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
@@ -81,6 +94,16 @@ def init_db():  # initialize database
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to database
             db.session.commit()  # commit database changes
+        if "due_date" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:
+            db.session.execute(
+                text("ALTER TABLE task ADD COLUMN due_date DATE"))
+        tasks = Task.query.all()
+        for task in tasks:
+            if task.due_date is None:
+                task.due_date = datetime.now().date()
+        db.session.commit()
 
 
 if __name__ == "__main__":
