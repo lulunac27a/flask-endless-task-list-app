@@ -16,10 +16,11 @@ class User(db.Model):
                    unique=True, nullable=False)  # user id
     username = db.Column(db.String(80), unique=True,
                          nullable=False)  # username
-    xp = db.Column(db.Float, default=0)  # user XP
-    xp_required = db.Column(db.Float, default=1)  # user XP required
-    total_xp = db.Column(db.Float, default=0)  # user total XP
-    level = db.Column(db.Integer, default=1)  # user level
+    xp = db.Column(db.Float, default=0, nullable=False)  # user XP
+    xp_required = db.Column(db.Float, default=1,
+                            nullable=False)  # user XP required
+    total_xp = db.Column(db.Float, default=0, nullable=False)  # user total XP
+    level = db.Column(db.Integer, default=1, nullable=False)  # user level
 
     def add_xp(self, amount):  # add XP
         self.xp += amount  # add XP by amount
@@ -40,10 +41,13 @@ class User(db.Model):
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True,
                    unique=True, nullable=False)  # task id
-    name = db.Column(db.String(80))  # task name
+    name = db.Column(db.String(80), nullable=False)  # task name
     due_date = db.Column(
-        db.Date, default=datetime.now().date())  # task due date
-    completed = db.Column(db.Boolean, default=False)  # is task completed
+        db.Date, default=datetime.now().date(), nullable=False
+    )  # task due date
+    completed = db.Column(
+        db.Boolean, default=False, nullable=False
+    )  # is task completed
     user_id = db.Column(
         db.Integer, db.ForeignKey(User.__tablename__ + ".id")
     )  # user id
