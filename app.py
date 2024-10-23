@@ -57,7 +57,9 @@ class Task(db.Model):
 
 @app.route("/")
 def index():  # get index page template
-    tasks = Task.query.all()  # get list of tasks
+    tasks = Task.query.order_by(
+        Task.due_date
+    ).all()  # get list of tasks sorted by due date
     user = User.query.first()  # get first user
     return render_template(
         "index.html", tasks=tasks, user=user
