@@ -30,7 +30,10 @@
       </form>
       <ul>
         {% for task in tasks %}<!--repeat for each task in task list-->
-        <li>{{ task.name }}</li>
+        <li>
+          {{ task.name }}<br />
+          Due: {{ task.due_date }}
+        </li>
         {% if not task.completed %}<!--show complete button if task is not completed-->
         <a href="/complete_task/{{ task.id }}">Complete</a>
         {% endif %}
