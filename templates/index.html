@@ -24,7 +24,14 @@
       Add New Task<br />
       <form action="{{ url_for('add_task') }}" method="post">
         <!--form to add task-->
-        Name: <input type="text" id="name" name="name" required /><br />
+        Name:
+        <input
+          type="text"
+          id="name"
+          name="name"
+          maxlength="80"
+          required
+        /><br />
         Due date:
         <input
           type="date"
