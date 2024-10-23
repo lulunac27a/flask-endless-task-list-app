@@ -61,8 +61,9 @@ def index():  # get index page template
         Task.due_date
     ).all()  # get list of tasks sorted by due date
     user = User.query.first()  # get first user
+    today = datetime.now().strftime("%Y-%m-%d")
     return render_template(
-        "index.html", tasks=tasks, user=user
+        "index.html", tasks=tasks, user=user, today=today
     )  # redirect to index page template
 
 

@@ -25,7 +25,13 @@
         <!--form to add task-->
         Name: <input type="text" id="name" name="name" required /><br />
         Due date:
-        <input type="date" id="due_date" name="due_date" required /><br />
+        <input
+          type="date"
+          id="due_date"
+          name="due_date"
+          min="{{ today }}"
+          required
+        /><br />
         <input type="submit" value="Add Task" />
       </form>
       <ul>
