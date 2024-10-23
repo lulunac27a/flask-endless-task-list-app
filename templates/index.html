@@ -12,12 +12,13 @@
     <ul>
       {{ user.username }}:<br />
       Level {{ user.level }}<br />
-      {{ user.xp }} / {{ user.xp_required }} XP<br />
+      {{ user.xp | short_numeric }} / {{ user.xp_required | short_numeric }}
+      XP<br />
       <div class="progress-container">
         <!--get current level progress-->
         <progress value="{{ user.xp }}" max="{{ user.xp_required }}"></progress>
         <div class="progress-text">
-          {{ user.xp / user.xp_required * 100 | round }}%
+          {{ user.xp / user.xp_required * 100 | short_numeric }}%
         </div>
       </div>
       Add New Task<br />

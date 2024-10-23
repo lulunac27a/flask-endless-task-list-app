@@ -55,6 +55,51 @@ class Task(db.Model):
         "User", backref=db.backref("tasks", lazy=True))  # user
 
 
+@app.template_filter("short_numeric")  # short numeric filter
+# get number in short numeric form with abbreviations
+def short_numeric_filter(value):
+    """
+    Get the abbreviated numeric value.
+    value - the numeric value to convert.
+    """
+    units = [
+        "",
+        "K",
+        "M",
+        "B",
+        "T",
+        "Qa",
+        "Qi",
+        "Sx",
+        "Sp",
+        "O",
+        "N",
+        "D",
+        "UD",
+        "DD",
+        "TD",
+        "QaD",
+        "QiD",
+        "SxD",
+        "SpD",
+        "OD",
+        "ND",
+        "V",
+    ]  # list of units with abbreviations
+    exponent = 0
+    mantissa = value  # mantissa value from 1 to 999
+    while mantissa >= 1000:  # repeat until mantissa is within 1 to 999
+        mantissa /= 1000
+        exponent += 1
+    return (
+        f"{mantissa:.3g}{units[exponent]}" if value >= 1000 else f"{value:.0f}"
+    )  # print abbreviated output
+
+
+# add filter to Jinja
+app.jinja_env.filters["short_numeric"] = short_numeric_filter
+
+
 @app.route("/")
 def index():  # get index page template
     tasks = Task.query.order_by(
