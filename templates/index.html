@@ -45,8 +45,14 @@
         <select id="priority" name="priority">
           <option value="1">Low</option>
           <option value="2">Medium</option>
-          <option value="3">High</option>
-        </select>
+          <option value="3">High</option></select
+        ><br />
+        Difficulty:
+        <select id="difficulty" name="difficulty">
+          <option value="1">Easy</option>
+          <option value="2">Medium</option>
+          <option value="3">Hard</option></select
+        ><br />
         <input type="submit" value="Add Task" />
       </form>
       <ul>
@@ -56,8 +62,10 @@
           Due: {{ task.due_date }}
         </li>
         Priority: {% if task.priority == 1 %} Low {% elif task.priority == 2 %}
-        Medium {% elif task.priority == 3 %} High {% endif %} {% if not
-        task.completed %}<!--show complete button if task is not completed-->
+        Medium {% elif task.priority == 3 %} High {% endif %}<br />
+        Difficulty: {% if task.difficulty == 1 %} Easy {% elif task.difficulty
+        == 2 %} Medium {% elif task.difficulty == 3 %} Hard {% endif %}<br />
+        {% if not task.completed %}<!--show complete button if task is not completed-->
         <a href="/complete_task/{{ task.id }}">Complete</a>
         {% endif %}
         <a href="/delete_task/{{ task.id }}">Delete</a>

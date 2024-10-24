@@ -47,6 +47,8 @@ class Task(db.Model):
     )  # task due date
     priority = db.Column(db.Integer, default=1,
                          nullable=False)  # task priority
+    difficulty = db.Column(db.Integer, default=1,
+                           nullable=False)  # task difficulty
     completed = db.Column(
         db.Boolean, default=False, nullable=False
     )  # is task completed
@@ -120,12 +122,14 @@ def add_task():  # add task to task list
     name = request.form.get("name")  # get name from request form
     due_date = request.form.get("due_date")  # get due date
     priority = int(request.form.get("priority"))  # get priority
+    difficulty = int(request.form.get("difficulty"))  # get difficulty
     user = User.query.first()  # get first user
     if user:
         new_task = Task(
             name=name,
             user_id=user.id,
             priority=priority,
+            difficulty=difficulty,
             due_date=datetime.strptime(due_date, "%Y-%m-%d"),
         )
         db.session.add(new_task)  # add new task to task list
@@ -140,7 +144,7 @@ def complete_task(task_id):  # complete task from task id
         task.completed = True  # complete the task
         user = User.query.first()  # get first user
         if user:
-            user.add_xp(round(task.priority))  # add XP
+            user.add_xp(round(task.priority * task.difficulty))  # add XP
             db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
 
@@ -156,14 +160,22 @@ def init_db():  # initialize database
             column["name"] for column in db.inspect(db.engine).get_columns("task")
         ]:  # check if due date column is not in task table
             db.session.execute(
-                text("ALTER TABLE task ADD COLUMN due_date DATE NOT NULL")
+                text(
+                    "ALTER TABLE task ADD COLUMN due_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                )
             )  # create due date column
         if "priority" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
         ]:  # check if priority column is not in task table
             db.session.execute(
-                text("ALTER TABLE task ADD COLUMN priority INT NOT NULL")
+                text("ALTER TABLE task ADD COLUMN priority INT NOT NULL DEFAULT 1")
             )  # create priority column
+        if "difficulty" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:  # check if difficulty column is not in task table
+            db.session.execute(
+                text("ALTER TABLE task ADD COLUMN difficulty INT NOT NULL DEFAULT 1")
+            )  # create difficulty column
         tasks = Task.query.all()  # get list of tasks
         for task in tasks:  # repeat for each task
             if task.due_date is None:  # check if task due date is none
@@ -172,6 +184,8 @@ def init_db():  # initialize database
                 )  # set task due date to today's date
             if task.priority is None:  # check if task priority is none
                 task.priority = 1  # set task priority to low
+            if task.difficulty is None:  # check if task difficulty is none
+                task.difficulty = 1  # set task difficulty to low
         db.session.commit()  # commit database changes
 
 
