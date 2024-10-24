@@ -45,6 +45,8 @@ class Task(db.Model):
     due_date = db.Column(
         db.Date, default=datetime.now().date(), nullable=False
     )  # task due date
+    priority = db.Column(db.Integer, default=1,
+                         nullable=False)  # task priority
     completed = db.Column(
         db.Boolean, default=False, nullable=False
     )  # is task completed
@@ -106,6 +108,7 @@ def index():  # get index page template
         Task.due_date
     ).all()  # get list of tasks sorted by due date
     user = User.query.first()  # get first user
+    # get today's date in YYYY-MM-DD format
     today = datetime.now().strftime("%Y-%m-%d")
     return render_template(
         "index.html", tasks=tasks, user=user, today=today
@@ -116,11 +119,14 @@ def index():  # get index page template
 def add_task():  # add task to task list
     name = request.form.get("name")  # get name from request form
     due_date = request.form.get("due_date")  # get due date
+    priority = int(request.form.get("priority"))  # get priority
     user = User.query.first()  # get first user
     if user:
         new_task = Task(
-            name=name, user_id=user.id, due_date=datetime.strptime(
-                due_date, "%Y-%m-%d")
+            name=name,
+            user_id=user.id,
+            priority=priority,
+            due_date=datetime.strptime(due_date, "%Y-%m-%d"),
         )
         db.session.add(new_task)  # add new task to task list
         db.session.commit()  # commit database changes
@@ -134,7 +140,7 @@ def complete_task(task_id):  # complete task from task id
         task.completed = True  # complete the task
         user = User.query.first()  # get first user
         if user:
-            user.add_xp(1)  # add XP
+            user.add_xp(round(task.priority))  # add XP
             db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
 
@@ -150,14 +156,22 @@ def init_db():  # initialize database
             column["name"] for column in db.inspect(db.engine).get_columns("task")
         ]:  # check if due date column is not in task table
             db.session.execute(
-                text("ALTER TABLE task ADD COLUMN due_date DATE")
+                text("ALTER TABLE task ADD COLUMN due_date DATE NOT NULL")
             )  # create due date column
+        if "priority" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:  # check if priority column is not in task table
+            db.session.execute(
+                text("ALTER TABLE task ADD COLUMN priority INT NOT NULL")
+            )  # create priority column
         tasks = Task.query.all()  # get list of tasks
         for task in tasks:  # repeat for each task
             if task.due_date is None:  # check if task due date is none
                 task.due_date = (
                     datetime.now().date()
                 )  # set task due date to today's date
+            if task.priority is None:  # check if task priority is none
+                task.priority = 1  # set task priority to low
         db.session.commit()  # commit database changes
 
 
