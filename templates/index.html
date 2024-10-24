@@ -68,7 +68,11 @@
         {% if not task.completed %}<!--show complete button if task is not completed-->
         <a href="/complete_task/{{ task.id }}">Complete</a>
         {% endif %}
-        <a href="/delete_task/{{ task.id }}">Delete</a>
+        <a
+          href="/delete_task/{{ task.id }}"
+          onclick="return {{ 'confirm(\'Are you sure you want to delete this task?\')' if not task.completed else 'true' }}"
+          >Delete</a
+        ><!--confirm user to delete the task if task is not completed, if task is completed don't alert user to confirm task deletion-->
         {% endfor %}
       </ul>
     </ul>
