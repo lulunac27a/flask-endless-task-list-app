@@ -149,6 +149,15 @@ def complete_task(task_id):  # complete task from task id
     return redirect(url_for("index"))  # redirect to index page template
 
 
+@app.route("/delete_task/<int:task_id>")
+def delete_task(task_id):  # delete task from task id
+    task = Task.query.get(task_id)  # get task by task id
+    if task:
+        db.session.delete(task)  # delete task from task list
+        db.session.commit()  # commit database changes
+    return redirect(url_for("index"))  # redirect to index page template
+
+
 def init_db():  # initialize database
     with app.app_context():
         db.create_all()  # create tables if they don't exist
