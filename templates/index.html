@@ -55,7 +55,9 @@
           {{ task.name }}<br />
           Due: {{ task.due_date }}
         </li>
-        {% if not task.completed %}<!--show complete button if task is not completed-->
+        Priority: {% if task.priority == 1 %} Low {% elif task.priority == 2 %}
+        Medium {% elif task.priority == 3 %} High {% endif %} {% if not
+        task.completed %}<!--show complete button if task is not completed-->
         <a href="/complete_task/{{ task.id }}">Complete</a>
         {% endif %}
         <a href="/delete_task/{{ task.id }}">Delete</a>
