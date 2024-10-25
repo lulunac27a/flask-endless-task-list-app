@@ -170,10 +170,60 @@ def complete_task(task_id):  # complete task from task id
             task.repeat_interval,
             task.repeat_often,
         )  # calculate next task due date
+        if task.repeat_often == 1:  # if the task repetition interval is daily
+            if task.repeat_interval < 7:  # 7 days is 1 week
+                repeat_multiplier = 1 + (task.repeat_interval - 1) / (
+                    7 - 1
+                )  # 1x XP multiplier for daily tasks (1 day) to 2x XP multiplier for weekly tasks (7 days)
+            elif task.repeat_interval < 30:  # approximately 30 days is 1 month
+                repeat_multiplier = 2 + (task.repeat_interval - 7) / (
+                    30 - 7
+                )  # 2x XP multiplier for weekly tasks (7 days) to 3x XP multiplier for monthly tasks (approximately 30 days)
+            elif task.repeat_interval < 365:  # approximately 365 days is 1 year
+                repeat_multiplier = 3 + (task.repeat_interval - 30) / (
+                    365 - 30
+                )  # 3x XP multiplier for monthly tasks (approximately 30 days) to 4x XP multiplier for yearly tasks (approximately 365 days)
+            else:
+                repeat_multiplier = (
+                    5 - 365 / task.repeat_interval
+                )  # 4x XP multiplier for yearly tasks (approximately 365 days) to 5x XP multiplier for one-time tasks
+        elif task.repeat_often == 2:  # if the task repetition interval is weekly
+            if task.repeat_interval < 4:  # approximately 4 weeks is 1 month
+                repeat_multiplier = 2 + (task.repeat_interval - 1) / (
+                    4 - 1
+                )  # 2x XP multiplier for weekly tasks (1 week) to 3x XP multiplier for monthly tasks (approximately 4 weeks)
+            elif task.repeat_interval < 52:  # approximately 52 weeks is 1 year
+                repeat_multiplier = 3 + (task.repeat_interval - 4) / (
+                    52 - 4
+                )  # 3x XP multiplier for monthly tasks (approximately 4 weeks) to 4x XP multiplier for yearly tasks (approximately 52 weeks)
+            else:
+                repeat_multiplier = (
+                    5 - 52 / task.repeat_interval
+                )  # 4x XP multiplier for yearly tasks (approximately 52 weeks) to 5x XP multiplier for one-time tasks
+        elif task.repeat_often == 3:  # if the task repetition interval is monthly
+            if task.repeat_interval < 12:  # 12 months is 1 year
+                repeat_multiplier = 3 + (task.repeat_interval - 1) / (
+                    12 - 1
+                )  # 3x XP multiplier for monthly tasks (1 month) to 4x XP multiplier for yearly tasks (12 months)
+            else:
+                repeat_multiplier = (
+                    5 - 12 / task.repeat_interval
+                )  # 4x XP multiplier for yearly tasks (12 months) to 5x XP multiplier for one-time tasks
+        elif task.repeat_often == 4:  # if the task repetition interval is yearly
+            repeat_multiplier = (
+                5 - 1 / task.repeat_interval
+            )  # 4x XP multiplier for yearly tasks (1 year) to 5x XP multiplier for one-time tasks
+        else:  # if the task repetition interval is one-time
+            repeat_multiplier = 5  # get 5x XP multiplier for one-time tasks
         user = User.query.first()  # get first user
         if user:
             user.add_xp(
-                round(task.priority * task.difficulty * task.repeat_often)
+                round(
+                    task.priority
+                    * task.difficulty
+                    * task.repeat_often
+                    * repeat_multiplier
+                )
             )  # add XP
             db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
