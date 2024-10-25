@@ -54,6 +54,22 @@
           <option value="2">Medium</option>
           <option value="3">Hard</option></select
         ><br />
+        Repeat every:
+        <input
+          type="number"
+          id="repeat_interval"
+          name="repeat_interval"
+          min="1"
+          step="1"
+        /><br />
+        Repeat interval:
+        <select id="repeat_often" name="repeat_often">
+          <option value="1">Daily</option>
+          <option value="2">Weekly</option>
+          <option value="3">Monthly</option>
+          <option value="4">Yearly</option>
+          <option value="5" selected>Once</option>
+        </select>
         <input type="submit" value="Add Task" />
       </form>
       <ul>
@@ -66,6 +82,8 @@
         Medium {% elif task.priority == 3 %} High {% endif %}<br />
         Difficulty: {% if task.difficulty == 1 %} Easy {% elif task.difficulty
         == 2 %} Medium {% elif task.difficulty == 3 %} Hard {% endif %}<br />
+        Repeat: {% if task.difficulty == 3 %} Month {% elif task.difficulty == 4
+        %} Year {% elif task.difficulty == 5 %} Once {% endif %}<br />
         {% if not task.completed %}<!--show complete button if task is not completed-->
         <a href="/complete_task/{{ task.id }}">Complete</a>
         {% endif %}

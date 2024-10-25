@@ -1,4 +1,5 @@
-from datetime import datetime
+import calendar
+from datetime import datetime, timedelta
 import math
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -42,6 +43,9 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True,
                    unique=True, nullable=False)  # task id
     name = db.Column(db.String(80), nullable=False)  # task name
+    original_due_date = db.Column(
+        db.Date, default=datetime.now().date(), nullable=False
+    )  # task due date
     due_date = db.Column(
         db.Date, default=datetime.now().date(), nullable=False
     )  # task due date
@@ -49,6 +53,14 @@ class Task(db.Model):
                          nullable=False)  # task priority
     difficulty = db.Column(db.Integer, default=1,
                            nullable=False)  # task difficulty
+    repeat_interval = db.Column(
+        db.Integer, default=1, nullable=False
+    )  # task repeat interval
+    repeat_often = db.Column(db.Integer, default=5,
+                             nullable=False)  # task repeat often
+    times_completed = db.Column(
+        db.Integer, default=0, nullable=False
+    )  # number if times task has completed
     completed = db.Column(
         db.Boolean, default=False, nullable=False
     )  # is task completed
@@ -123,6 +135,11 @@ def add_task():  # add task to task list
     due_date = request.form.get("due_date")  # get due date
     priority = int(request.form.get("priority"))  # get priority
     difficulty = int(request.form.get("difficulty"))  # get difficulty
+    repeat_interval = int(
+        request.form.get("repeat_interval")
+    )  # get task repeat interval
+    repeat_often = int(request.form.get("repeat_often")
+                       )  # get task repeat often
     user = User.query.first()  # get first user
     if user:
         new_task = Task(
@@ -130,8 +147,11 @@ def add_task():  # add task to task list
             user_id=user.id,
             priority=priority,
             difficulty=difficulty,
+            repeat_interval=repeat_interval,
+            repeat_often=repeat_often,
+            original_due_date=datetime.strptime(due_date, "%Y-%m-%d"),
             due_date=datetime.strptime(due_date, "%Y-%m-%d"),
-        )
+        )  # create new task with input parameters
         db.session.add(new_task)  # add new task to task list
         db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
@@ -141,7 +161,15 @@ def add_task():  # add task to task list
 def complete_task(task_id):  # complete task from task id
     task = Task.query.get(task_id)  # get task by task id
     if task:
-        task.completed = True  # complete the task
+        if task.repeat_often == 5:  # if task is one-time task
+            task.completed = True  # complete the task
+        task.times_completed += 1  # increase times task completed by 1
+        task.due_date = calculate_next_recurring_event(
+            task.original_due_date,
+            task.times_completed,
+            task.repeat_interval,
+            task.repeat_often,
+        )  # calculate next task due date
         user = User.query.first()  # get first user
         if user:
             user.add_xp(round(task.priority * task.difficulty))  # add XP
@@ -158,21 +186,82 @@ def delete_task(task_id):  # delete task from task id
     return redirect(url_for("index"))  # redirect to index page template
 
 
+def calculate_next_recurring_event(
+    original_date, times_completed, repeat_interval, repeat_often
+):  # calculate next recurring event date
+    if repeat_often == 1:  # if task repeat often is daily
+        return original_date + timedelta(
+            days=repeat_interval * times_completed
+        )  # add days to original date
+    elif repeat_often == 2:  # if task repeat often is weekly
+        return original_date + timedelta(
+            weeks=repeat_interval * times_completed
+        )  # add weeks to original date
+    elif repeat_often == 3:  # if task repeat often is monthly
+        new_month = (
+            original_date.month + repeat_interval * times_completed
+        )  # get new month
+        new_year = original_date.year + (new_month - 1) // 12  # get new year
+        new_month = (
+            new_month - 1
+        ) % 12  # clamp month from 1 (January) to 12 (December)
+        max_days_in_month = calendar.monthrange(new_year, new_month)[
+            1
+        ]  # get number of days in month
+        return datetime(
+            new_year, new_month, min(original_date.day, max_days_in_month)
+        )  # add months to original date
+    elif repeat_often == 4:  # if task repeat often is yearly
+        new_year = original_date.year + repeat_interval * times_completed
+        max_days_in_month = calendar.monthrange(new_year, original_date.month)[
+            1
+        ]  # get number of days in month
+        return datetime(
+            new_year, original_date.month, min(
+                original_date.day, max_days_in_month)
+        )  # add years in original date
+    else:
+        return None
+
+
 def init_db():  # initialize database
     with app.app_context():
         db.create_all()  # create tables if they don't exist
+        today = datetime.now().strftime(
+            "%Y-%m-%d"
+        )  # get today's date in YYYY-MM-DD format
         if User.query.count() == 0:  # if there is no users
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to database
+            db.session.commit()  # commit database changes
+        if "original_due_date" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:  # check if original due date column is not in task table
+            db.session.execute(
+                text("ALTER TABLE task ADD COLUMN original_due_date DATE")
+            )  # create original due date column
+            db.session.execute(
+                text("UPDATE task SET original_due_date = ?"), (today)
+            )  # update existing rows
+            db.session.commit()  # commit database changes
+            db.session.execute(
+                text("ALTER TABLE task ALTER COLUMN original_due_date SET NOT NULL")
+            )  # set column to not null
             db.session.commit()  # commit database changes
         if "due_date" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
         ]:  # check if due date column is not in task table
             db.session.execute(
-                text(
-                    "ALTER TABLE task ADD COLUMN due_date DATE NOT NULL DEFAULT CURRENT_TIMESTAMP"
-                )
+                text("ALTER TABLE task ADD COLUMN due_date DATE")
             )  # create due date column
+            db.session.execute(
+                text("UPDATE task SET due_date = ?"), (today)
+            )  # update existing rows
+            db.session.commit()  # commit database changes
+            db.session.execute(
+                text("ALTER TABLE task ALTER COLUMN due_date SET NOT NULL")
+            )  # set column to not null
+            db.session.commit()  # commit database changes
         if "priority" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
         ]:  # check if priority column is not in task table
@@ -185,8 +274,36 @@ def init_db():  # initialize database
             db.session.execute(
                 text("ALTER TABLE task ADD COLUMN difficulty INT NOT NULL DEFAULT 1")
             )  # create difficulty column
+        if "repeat_interval" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:  # check if repeat interval column is not in task table
+            db.session.execute(
+                text(
+                    "ALTER TABLE task ADD COLUMN repeat_interval INT NOT NULL DEFAULT 1"
+                )
+            )  # create repeat interval column
+        if "repeat_often" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:  # check if repeat often column is not in task table
+            db.session.execute(
+                text("ALTER TABLE task ADD COLUMN repeat_often INT NOT NULL DEFAULT 5")
+            )  # create repeat often column
+        if "times_completed" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:  # check if times completed column is not in task table
+            db.session.execute(
+                text(
+                    "ALTER TABLE task ADD COLUMN times_completed INT NOT NULL DEFAULT 0"
+                )
+            )  # create times completed column
         tasks = Task.query.all()  # get list of tasks
         for task in tasks:  # repeat for each task
+            if (
+                task.original_due_date is None
+            ):  # check if task original due date is none
+                task.original_due_date = (
+                    datetime.now().date()
+                )  # set task original due date to today's date
             if task.due_date is None:  # check if task due date is none
                 task.due_date = (
                     datetime.now().date()
@@ -195,6 +312,10 @@ def init_db():  # initialize database
                 task.priority = 1  # set task priority to low
             if task.difficulty is None:  # check if task difficulty is none
                 task.difficulty = 1  # set task difficulty to low
+            if task.repeat_interval is None:  # check if repeat interval is none
+                task.repeat_interval = 1  # set repeat interval to 1
+            if task.repeat_often is None:  # check if repeat often is none
+                task.repeat_often = 1  # set repeat often to once
         db.session.commit()  # commit database changes
 
 
