@@ -172,7 +172,9 @@ def complete_task(task_id):  # complete task from task id
         )  # calculate next task due date
         user = User.query.first()  # get first user
         if user:
-            user.add_xp(round(task.priority * task.difficulty))  # add XP
+            user.add_xp(
+                round(task.priority * task.difficulty * task.repeat_often)
+            )  # add XP
             db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
 
