@@ -61,6 +61,7 @@
           name="repeat_interval"
           min="1"
           step="1"
+          value="1"
         /><br />
         Repeat interval:
         <select id="repeat_often" name="repeat_often">
@@ -82,8 +83,13 @@
         Medium {% elif task.priority == 3 %} High {% endif %}<br />
         Difficulty: {% if task.difficulty == 1 %} Easy {% elif task.difficulty
         == 2 %} Medium {% elif task.difficulty == 3 %} Hard {% endif %}<br />
-        Repeat: {% if task.difficulty == 3 %} Month {% elif task.difficulty == 4
-        %} Year {% elif task.difficulty == 5 %} Once {% endif %}<br />
+        Repeat: {% if task.repeat_often != 5 %} {{ task.repeat_interval }} {%
+        endif %} {% if task.repeat_often == 1 %} Day{% if task.repeat_interval >
+        1 %}s {% endif %}{% elif task.repeat_often == 2 %} Week{% if
+        task.repeat_interval > 1 %}s {% endif %}{% elif task.repeat_often == 3
+        %} Month{% if task.repeat_interval > 1 %}s {% endif %}{% elif
+        task.repeat_often == 4 %} Year{% if task.repeat_interval > 1 %}s {%
+        endif %}{% elif task.repeat_often == 5 %} Once {% endif %}<br />
         {% if not task.completed %}<!--show complete button if task is not completed-->
         <a href="/complete_task/{{ task.id }}">Complete</a>
         {% endif %}
