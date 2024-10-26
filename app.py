@@ -163,7 +163,8 @@ def complete_task(task_id):  # complete task from task id
     if task:
         if task.repeat_often == 5:  # if task is one-time task
             task.completed = True  # complete the task
-        task.times_completed += 1  # increase times task completed by 1
+        else:  # if task is repeatable
+            task.times_completed += 1  # increase times task completed by 1
         task.due_date = calculate_next_recurring_event(
             task.original_due_date,
             task.times_completed,
