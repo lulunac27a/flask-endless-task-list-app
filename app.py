@@ -60,7 +60,7 @@ class Task(db.Model):
                              nullable=False)  # task repeat often
     times_completed = db.Column(
         db.Integer, default=0, nullable=False
-    )  # number if times task has completed
+    )  # number of times task has completed
     completed = db.Column(
         db.Boolean, default=False, nullable=False
     )  # is task completed
