@@ -223,6 +223,7 @@ def complete_task(task_id):  # complete task from task id
                     * task.difficulty
                     * task.repeat_often
                     * repeat_multiplier
+                    * math.log(max(task.times_completed, 1))
                 )
             )  # add XP
             db.session.commit()  # commit database changes
