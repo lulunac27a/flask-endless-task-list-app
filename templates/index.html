@@ -12,6 +12,7 @@
     <ul>
       {{ user.username }}:<br />
       Level {{ user.level }}<br />
+      Total XP: {{ user.total_xp | short_numeric }}<br />
       {{ user.xp | short_numeric }} / {{ user.xp_required | short_numeric }}
       XP<br />
       <div class="progress-container">
