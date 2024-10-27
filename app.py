@@ -22,6 +22,9 @@ class User(db.Model):
                             nullable=False)  # user XP required
     total_xp = db.Column(db.Float, default=0, nullable=False)  # user total XP
     level = db.Column(db.Integer, default=1, nullable=False)  # user level
+    tasks_completed = db.Column(
+        db.Integer, default=0, nullable=False
+    )  # number of times tasks has completed
 
     def add_xp(self, amount):  # add XP
         self.xp += amount  # add XP by amount
@@ -225,6 +228,7 @@ def complete_task(task_id):  # complete task from task id
                     * task.repeat_often
                     * repeat_multiplier
                     * (1 + math.log(max(task.times_completed, 1)))
+                    * (1 + math.log(max(user.tasks_completed, 1)))
                 )
             )  # add XP
             db.session.commit()  # commit database changes
@@ -284,6 +288,14 @@ def init_db():  # initialize database
         today = datetime.now().strftime(
             "%Y-%m-%d"
         )  # get today's date in YYYY-MM-DD format
+        if "tasks_completed" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if tasks completed column is not in user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN tasks_completed INT NOT NULL DEFAULT 0"
+                )
+            )  # create tasks completed column
         if User.query.count() == 0:  # if there is no users
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to database
