@@ -10,7 +10,8 @@
   <body>
     <h1>Endless Task List App using Flask</h1>
     <ul>
-      {% with messages = get_flashed_messages() %} {% if messages %}
+      {% with messages = get_flashed_messages() %}<!--get flashed messages to display-->
+      {% if messages %}
       <div class="popup-message">
         {% for message in messages %}
         <p>{{ message }}</p>
