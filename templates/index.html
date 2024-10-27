@@ -10,7 +10,13 @@
   <body>
     <h1>Endless Task List App using Flask</h1>
     <ul>
-      {{ user.username }}:<br />
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <div class="popup-message">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %} {{ user.username }}:<br />
       Level {{ user.level }}<br />
       Total XP: {{ user.total_xp | short_numeric }}<br />
       {{ user.xp | short_numeric }} / {{ user.xp_required | short_numeric }}

@@ -1,7 +1,8 @@
 import calendar
 from datetime import datetime, timedelta
 import math
-from flask import Flask, render_template, request, redirect, url_for
+import os
+from flask import Flask, flash, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
@@ -9,6 +10,7 @@ from sqlalchemy import text
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.secret_key = os.environ["SECRET_KEY"]
 db = SQLAlchemy(app)
 
 
@@ -29,6 +31,10 @@ class User(db.Model):
     def add_xp(self, amount):  # add XP
         self.xp += amount  # add XP by amount
         self.total_xp += amount  # add total XP by amount
+        flash(
+            "Task completed! You gained " +
+            short_numeric_filter(amount) + " XP!"
+        )  # display message with gained XP
         self.check_level_up()  # check if user has leveled up
 
     def check_level_up(self):  # check if user has leveled up
