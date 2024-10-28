@@ -226,6 +226,9 @@ def complete_task(task_id):  # complete task from task id
         else:  # if the task repetition interval is one-time
             repeat_multiplier = 5  # get 5x XP multiplier for one-time tasks
         user = User.query.first()  # get first user
+        active_tasks = Task.query.filter_by(
+            completed=False
+        ).count()  # get number of active tasks (tasks that are not completed)
         if user:
             user.add_xp(
                 round(
@@ -235,6 +238,7 @@ def complete_task(task_id):  # complete task from task id
                     * repeat_multiplier
                     * (1 + math.log(max(task.times_completed, 1)))
                     * (1 + math.log(max(user.tasks_completed, 1)))
+                    * (1 + math.log(max(active_tasks, 1)))
                 )
             )  # add XP
             db.session.commit()  # commit database changes
