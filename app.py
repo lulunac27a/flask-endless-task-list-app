@@ -236,6 +236,7 @@ def complete_task(task_id):  # complete task from task id
             completed=False
         ).count()  # get number of active tasks (tasks that are not completed)
         if user:
+            user.tasks_completed += 1  # increase number of tasks completed by 1
             user.add_xp(
                 round(
                     task.priority
