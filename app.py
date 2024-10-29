@@ -27,6 +27,12 @@ class User(db.Model):
     tasks_completed = db.Column(
         db.Integer, default=0, nullable=False
     )  # number of times tasks has completed
+    last_completion_date = db.Column(
+        db.Date, default=datetime.now().date, nullable=False
+    )  # user last task completion date
+    daily_streak = db.Column(
+        db.Integer, default=0, nullable=False
+    )  # user daily task streak
 
     def add_xp(self, amount):  # add XP
         self.xp += amount  # add XP by amount
@@ -239,6 +245,7 @@ def complete_task(task_id):  # complete task from task id
                     * (1 + math.log(max(task.times_completed, 1)))
                     * (1 + math.log(max(user.tasks_completed, 1)))
                     * (1 + math.log(max(active_tasks, 1)))
+                    * (1 + user.daily_streak / 10)
                 )
             )  # add XP
             db.session.commit()  # commit database changes
@@ -295,9 +302,6 @@ def calculate_next_recurring_event(
 def init_db():  # initialize database
     with app.app_context():
         db.create_all()  # create tables if they don't exist
-        today = datetime.now().strftime(
-            "%Y-%m-%d"
-        )  # get today's date in YYYY-MM-DD format
         if "tasks_completed" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("user")
         ]:  # check if tasks completed column is not in user table
@@ -305,6 +309,21 @@ def init_db():  # initialize database
                 text(
                     "ALTER TABLE user ADD COLUMN tasks_completed INT NOT NULL DEFAULT 0"
                 )
+            )  # create tasks completed column
+        if "last_completion_date" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if last completion date column is not in user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN last_completion_date DATE NOT NULL DEFAULT CURRENT_DATE"
+                )
+            )  # create last completion date column
+            db.session.commit()  # commit database changes
+        if "daily_streak" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if tasks completed column is not in user table
+            db.session.execute(
+                text("ALTER TABLE user ADD COLUMN daily_streak INT NOT NULL DEFAULT 0")
             )  # create tasks completed column
         if User.query.count() == 0:  # if there is no users
             new_user = User(username="Player")  # create new user
@@ -314,29 +333,19 @@ def init_db():  # initialize database
             column["name"] for column in db.inspect(db.engine).get_columns("task")
         ]:  # check if original due date column is not in task table
             db.session.execute(
-                text("ALTER TABLE task ADD COLUMN original_due_date DATE")
+                text(
+                    "ALTER TABLE task ADD COLUMN original_due_date DATE NOT NULL DEFAULT CURRENT_DATE"
+                )
             )  # create original due date column
-            db.session.execute(
-                text("UPDATE task SET original_due_date = ?"), (today)
-            )  # update existing rows
-            db.session.commit()  # commit database changes
-            db.session.execute(
-                text("ALTER TABLE task ALTER COLUMN original_due_date SET NOT NULL")
-            )  # set column to not null
             db.session.commit()  # commit database changes
         if "due_date" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
         ]:  # check if due date column is not in task table
             db.session.execute(
-                text("ALTER TABLE task ADD COLUMN due_date DATE")
+                text(
+                    "ALTER TABLE task ADD COLUMN due_date DATE NOT NULL DEFAULT CURRENT_DATE"
+                )
             )  # create due date column
-            db.session.execute(
-                text("UPDATE task SET due_date = ?"), (today)
-            )  # update existing rows
-            db.session.commit()  # commit database changes
-            db.session.execute(
-                text("ALTER TABLE task ALTER COLUMN due_date SET NOT NULL")
-            )  # set column to not null
             db.session.commit()  # commit database changes
         if "priority" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
