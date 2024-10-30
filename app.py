@@ -237,6 +237,18 @@ def complete_task(task_id):  # complete task from task id
         ).count()  # get number of active tasks (tasks that are not completed)
         if user:
             user.tasks_completed += 1  # increase number of tasks completed by 1
+            day_difference = datetime.now() - datetime(
+                user.last_completion_date.year,
+                user.last_completion_date.month,
+                user.last_completion_date.day,
+            )  # calculate difference in days
+            if day_difference.days == 1:  # if a new day has passed
+                daily_streak += 1  # increase daily streak by 1
+            elif day_difference.days > 1:  # if more than a day has passed
+                daily_streak = 0  # reset daily streak to 0
+            user.last_completion_date = (
+                datetime.now()
+            )  # set user last completion date to today
             user.add_xp(
                 round(
                     task.priority
