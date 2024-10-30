@@ -28,11 +28,14 @@ class User(db.Model):
         db.Integer, default=0, nullable=False
     )  # number of times tasks has completed
     last_completion_date = db.Column(
-        db.Date, default=datetime.now().date, nullable=False
+        db.Date, default=datetime.now().date(), nullable=False
     )  # user last task completion date
     daily_streak = db.Column(
         db.Integer, default=0, nullable=False
     )  # user daily task streak
+    daily_tasks_completed = db.Column(
+        db.Integer, default=0, nullable=False
+    )  # user tasks completed in a day
 
     def add_xp(self, amount):  # add XP
         self.xp += amount  # add XP by amount
@@ -40,7 +43,7 @@ class User(db.Model):
         flash(
             "Task completed! You gained " +
             short_numeric_filter(amount) + " XP!"
-        )  # display message with gained XP
+        )  # display message with amount of XP earned
         self.check_level_up()  # check if user has leveled up
 
     def check_level_up(self):  # check if user has leveled up
@@ -180,12 +183,12 @@ def complete_task(task_id):  # complete task from task id
             task.completed = True  # complete the task
         else:  # if task is repeatable
             task.times_completed += 1  # increase times task completed by 1
-        task.due_date = calculate_next_recurring_event(
-            task.original_due_date,
-            task.times_completed,
-            task.repeat_interval,
-            task.repeat_often,
-        )  # calculate next task due date
+            task.due_date = calculate_next_recurring_event(
+                task.original_due_date,
+                task.times_completed,
+                task.repeat_interval,
+                task.repeat_often,
+            )  # calculate next task due date
         if task.repeat_often == 1:  # if the task repetition interval is daily
             if task.repeat_interval < 7:  # 7 days is 1 week
                 repeat_multiplier = 1 + (task.repeat_interval - 1) / (
@@ -244,9 +247,18 @@ def complete_task(task_id):  # complete task from task id
             )  # calculate difference in days
             if day_difference.days == 1:  # if a new day has passed
                 user.daily_streak += 1  # increase daily streak by 1
+                user.daily_tasks_completed = (
+                    0  # reset number of tasks completed in a day to 0
+                )
             elif day_difference.days > 1:  # if more than a day has passed
-                user.daily_streak = 0  # reset daily streak to 0
-
+                user.daily_streak = 1  # reset daily streak to 1
+                user.daily_tasks_completed = (
+                    0  # reset number of tasks completed in a day to 0
+                )
+            else:
+                user.daily_tasks_completed += (
+                    1  # increase number of tasks completed in a day by 1
+                )
             user.last_completion_date = (
                 datetime.now()
             )  # set user last completion date to today
@@ -260,6 +272,7 @@ def complete_task(task_id):  # complete task from task id
                     * (1 + math.log(max(user.tasks_completed, 1)))
                     * (1 + math.log(max(active_tasks, 1)))
                     * (1 + user.daily_streak / 10)
+                    * (1 + user.daily_tasks_completed / 10)
                 )
             )  # add XP
             db.session.commit()  # commit database changes
@@ -339,6 +352,14 @@ def init_db():  # initialize database
             db.session.execute(
                 text("ALTER TABLE user ADD COLUMN daily_streak INT NOT NULL DEFAULT 0")
             )  # create tasks completed column
+        if "daily_tasks_completed" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if daily tasks completed column is not in user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN daily_tasks_completed INT NOT NULL DEFAULT 0"
+                )
+            )  # create daily tasks completed column
         if User.query.count() == 0:  # if there is no users
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to database
