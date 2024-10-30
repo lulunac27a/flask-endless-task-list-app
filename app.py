@@ -35,7 +35,10 @@ class User(db.Model):
     )  # user daily task streak
     daily_tasks_completed = db.Column(
         db.Integer, default=0, nullable=False
-    )  # user tasks completed in a day
+    )  # user number of tasks completed in a day
+    days_completed = db.Column(
+        db.Integer, default=0, nullable=False
+    )  # user days completed with tasks
 
     def add_xp(self, amount):  # add XP
         self.xp += amount  # add XP by amount
@@ -248,13 +251,15 @@ def complete_task(task_id):  # complete task from task id
             if day_difference.days == 1:  # if a new day has passed
                 user.daily_streak += 1  # increase daily streak by 1
                 user.daily_tasks_completed = (
-                    0  # reset number of tasks completed in a day to 0
+                    1  # reset number of tasks completed in a day to 1
                 )
+                user.days_completed += 1  # increase days completed by 1
             elif day_difference.days > 1:  # if more than a day has passed
                 user.daily_streak = 1  # reset daily streak to 1
                 user.daily_tasks_completed = (
-                    0  # reset number of tasks completed in a day to 0
+                    1  # reset number of tasks completed in a day to 1
                 )
+                user.days_completed += 1  # increase days completed by 1
             else:
                 user.daily_tasks_completed += (
                     1  # increase number of tasks completed in a day by 1
@@ -273,6 +278,7 @@ def complete_task(task_id):  # complete task from task id
                     * (1 + math.log(max(active_tasks, 1)))
                     * (1 + user.daily_streak / 10)
                     * (1 + user.daily_tasks_completed / 10)
+                    * (1 + math.log(max(user.days_completed, 1)))
                 )
             )  # add XP
             db.session.commit()  # commit database changes
@@ -350,7 +356,7 @@ def init_db():  # initialize database
             column["name"] for column in db.inspect(db.engine).get_columns("user")
         ]:  # check if tasks completed column is not in user table
             db.session.execute(
-                text("ALTER TABLE user ADD COLUMN daily_streak INT NOT NULL DEFAULT 0")
+                text("ALTER TABLE user ADD COLUMN daily_streak INT NOT NULL DEFAULT 1")
             )  # create tasks completed column
         if "daily_tasks_completed" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("user")
@@ -360,6 +366,14 @@ def init_db():  # initialize database
                     "ALTER TABLE user ADD COLUMN daily_tasks_completed INT NOT NULL DEFAULT 0"
                 )
             )  # create daily tasks completed column
+        if "days_completed" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if days completed column is not in user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN days_completed INT NOT NULL DEFAULT 1"
+                )
+            )  # create days completed column
         if User.query.count() == 0:  # if there is no users
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to database
