@@ -82,6 +82,7 @@ class Task(db.Model):
     times_completed = db.Column(
         db.Integer, default=0, nullable=False
     )  # number of times task has completed
+    streak = db.Column(db.Integer, default=0, nullable=False)  # task streak
     completed = db.Column(
         db.Boolean, default=False, nullable=False
     )  # is task completed
@@ -192,6 +193,12 @@ def complete_task(task_id):  # complete task from task id
                 task.repeat_interval,
                 task.repeat_often,
             )  # calculate next task due date
+            if (
+                datetime.now().date() > task.due_date
+            ):  # chech if task is overdue (current date is after task due date)
+                task.streak = 0  # reset streak to 0
+            else:
+                task.streak += 1  # increase streak by 1
         if task.repeat_often == 1:  # if the task repetition interval is daily
             if task.repeat_interval < 7:  # 7 days is 1 week
                 repeat_multiplier = 1 + (task.repeat_interval - 1) / (
@@ -279,6 +286,7 @@ def complete_task(task_id):  # complete task from task id
                     * (1 + user.daily_streak / 10)
                     * (1 + user.daily_tasks_completed / 10)
                     * (1 + math.log(max(user.days_completed, 1)))
+                    * (1 + task.streak / 10)
                 )
             )  # add XP
             db.session.commit()  # commit database changes
@@ -430,6 +438,12 @@ def init_db():  # initialize database
                     "ALTER TABLE task ADD COLUMN times_completed INT NOT NULL DEFAULT 0"
                 )
             )  # create times completed column
+        if "streak" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("task")
+        ]:  # check if streak column is not in task table
+            db.session.execute(
+                text("ALTER TABLE task ADD COLUMN streak INT NOT NULL DEFAULT 0")
+            )  # create streak column
         tasks = Task.query.all()  # get list of tasks
         for task in tasks:  # repeat for each task
             if (
