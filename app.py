@@ -195,7 +195,7 @@ def complete_task(task_id):  # complete task from task id
             )  # calculate next task due date
             if (
                 datetime.now().date() > task.due_date
-            ):  # chech if task is overdue (current date is after task due date)
+            ):  # check if task is overdue (current date is after task due date)
                 task.streak = 0  # reset streak to 0
             else:
                 task.streak += 1  # increase streak by 1
