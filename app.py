@@ -243,9 +243,10 @@ def complete_task(task_id):  # complete task from task id
                 user.last_completion_date.day,
             )  # calculate difference in days
             if day_difference.days == 1:  # if a new day has passed
-                daily_streak += 1  # increase daily streak by 1
+                user.daily_streak += 1  # increase daily streak by 1
             elif day_difference.days > 1:  # if more than a day has passed
-                daily_streak = 0  # reset daily streak to 0
+                user.daily_streak = 0  # reset daily streak to 0
+
             user.last_completion_date = (
                 datetime.now()
             )  # set user last completion date to today
