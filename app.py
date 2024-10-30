@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import math
 import os
 from flask import Flask, flash, render_template, request, redirect, url_for
@@ -28,7 +28,7 @@ class User(db.Model):
         db.Integer, default=0, nullable=False
     )  # number of times tasks has completed
     last_completion_date = db.Column(
-        db.Date, default=datetime.now().date(), nullable=False
+        db.Date, default=date.today(), nullable=False
     )  # user last task completion date
     daily_streak = db.Column(
         db.Integer, default=0, nullable=False
@@ -65,11 +65,10 @@ class Task(db.Model):
                    unique=True, nullable=False)  # task id
     name = db.Column(db.String(80), nullable=False)  # task name
     original_due_date = db.Column(
-        db.Date, default=datetime.now().date(), nullable=False
+        db.Date, default=date.today(), nullable=False
     )  # task due date
-    due_date = db.Column(
-        db.Date, default=datetime.now().date(), nullable=False
-    )  # task due date
+    due_date = db.Column(db.Date, default=date.today(),
+                         nullable=False)  # task due date
     priority = db.Column(db.Integer, default=1,
                          nullable=False)  # task priority
     difficulty = db.Column(db.Integer, default=1,
@@ -183,6 +182,7 @@ def add_task():  # add task to task list
 def complete_task(task_id):  # complete task from task id
     task = Task.query.get(task_id)  # get task by task id
     if task:
+        due_multiplier = 1  # set default due multiplier to 1
         if task.repeat_often == 5:  # if task is one-time task
             task.completed = True  # complete the task
         else:  # if task is repeatable
@@ -193,8 +193,28 @@ def complete_task(task_id):  # complete task from task id
                 task.repeat_interval,
                 task.repeat_often,
             )  # calculate next task due date
+            days_to_due = (
+                task.due_date - date.today()
+            ).days  # calculate number of days until task is due
+            if days_to_due > 0:  # if task due date is after today
+                due_multiplier = 1 + 1 / (
+                    days_to_due + 1
+                )  # set due multiplier that increases over time when task is closer to due date
+            elif (
+                days_to_due < 0
+            ):  # if task is overdue (current date is after task due date)
+                due_multiplier = -2 / (
+                    days_to_due - 1
+                )  # set due multiplier that decreases over time when task is overdue
+            elif days_to_due == 0:  # if task due date is today
+                next_midnight = datetime.combine(
+                    datetime.now().date() + timedelta(days=1), datetime.min.time()
+                )
+                due_multiplier = 4 / (
+                    1 + (next_midnight - datetime.now()) / timedelta(days=1)
+                )  # set due multiplier to 2 and increases over time to 4 at midnight
             if (
-                datetime.now().date() > task.due_date
+                date.today() > task.due_date
             ):  # check if task is overdue (current date is after task due date)
                 task.streak = 0  # reset streak to 0
             else:
@@ -287,6 +307,7 @@ def complete_task(task_id):  # complete task from task id
                     * (1 + user.daily_tasks_completed / 10)
                     * (1 + math.log(max(user.days_completed, 1)))
                     * (1 + task.streak / 10)
+                    * due_multiplier
                 )
             )  # add XP
             db.session.commit()  # commit database changes
@@ -320,7 +341,7 @@ def calculate_next_recurring_event(
         new_year = original_date.year + (new_month - 1) // 12  # get new year
         new_month = (
             new_month - 1
-        ) % 12  # clamp month from 1 (January) to 12 (December)
+        ) % 12 + 1  # clamp month from 1 (January) to 12 (December)
         max_days_in_month = calendar.monthrange(new_year, new_month)[
             1
         ]  # get number of days in month
@@ -337,7 +358,9 @@ def calculate_next_recurring_event(
                 original_date.day, max_days_in_month)
         )  # add years in original date
     else:
-        return None
+        return datetime(
+            original_date.year, original_date.month, original_date.day
+        )  # return original task due date
 
 
 def init_db():  # initialize database
@@ -450,12 +473,10 @@ def init_db():  # initialize database
                 task.original_due_date is None
             ):  # check if task original due date is none
                 task.original_due_date = (
-                    datetime.now().date()
+                    date.today()
                 )  # set task original due date to today's date
             if task.due_date is None:  # check if task due date is none
-                task.due_date = (
-                    datetime.now().date()
-                )  # set task due date to today's date
+                task.due_date = date.today()  # set task due date to today's date
             if task.priority is None:  # check if task priority is none
                 task.priority = 1  # set task priority to low
             if task.difficulty is None:  # check if task difficulty is none
