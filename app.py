@@ -46,7 +46,7 @@ class User(db.Model):
         flash(
             "Task completed! You gained " +
             short_numeric_filter(amount) + " XP!"
-        )  # display message with amount of XP earned
+        )  # display message with the amount of XP earned
         self.check_level_up()  # check if user has leveled up
 
     def check_level_up(self):  # check if user has leveled up
@@ -80,7 +80,7 @@ class Task(db.Model):
                              nullable=False)  # task repeat often
     times_completed = db.Column(
         db.Integer, default=0, nullable=False
-    )  # number of times task has completed
+    )  # number of times tasks has completed
     streak = db.Column(db.Integer, default=0, nullable=False)  # task streak
     completed = db.Column(
         db.Boolean, default=False, nullable=False
@@ -141,7 +141,7 @@ app.jinja_env.filters["short_numeric"] = short_numeric_filter
 def index():  # get index page template
     tasks = Task.query.order_by(
         Task.due_date
-    ).all()  # get list of tasks sorted by due date
+    ).all()  # get the list of tasks sorted by due date
     user = User.query.first()  # get first user
     # get today's date in YYYY-MM-DD format
     today = datetime.now().strftime("%Y-%m-%d")
@@ -151,7 +151,7 @@ def index():  # get index page template
 
 
 @app.route("/add", methods=["POST"])
-def add_task():  # add task to task list
+def add_task():  # add the task to the task list
     name = request.form.get("name")  # get name from request form
     due_date = request.form.get("due_date")  # get due date
     priority = int(request.form.get("priority"))  # get priority
@@ -172,8 +172,8 @@ def add_task():  # add task to task list
             repeat_often=repeat_often,
             original_due_date=datetime.strptime(due_date, "%Y-%m-%d"),
             due_date=datetime.strptime(due_date, "%Y-%m-%d"),
-        )  # create new task with input parameters
-        db.session.add(new_task)  # add new task to task list
+        )  # create the new task with input parameters
+        db.session.add(new_task)  # add the new task to task list
         db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
 
@@ -183,7 +183,7 @@ def complete_task(task_id):  # complete task from task id
     task = Task.query.get(task_id)  # get task by task id
     if task:
         due_multiplier = 1  # set default due multiplier to 1
-        if task.repeat_often == 5:  # if task is one-time task
+        if task.repeat_often == 5:  # if the task is a one-time task
             task.completed = True  # complete the task
         else:  # if task is repeatable
             task.times_completed += 1  # increase times task completed by 1
@@ -192,20 +192,20 @@ def complete_task(task_id):  # complete task from task id
                 task.times_completed,
                 task.repeat_interval,
                 task.repeat_often,
-            )  # calculate next task due date
+            )  # calculate the next task due date
             days_to_due = (
                 task.due_date - date.today()
-            ).days  # calculate number of days until task is due
+            ).days  # calculate the number of days until the task is due
             if days_to_due > 0:  # if task due date is after today
                 due_multiplier = 1 + 1 / (
                     days_to_due + 1
-                )  # set due multiplier that increases over time when task is closer to due date
+                )  # set due multiplier that increases over time when the task is closer to due date
             elif (
                 days_to_due < 0
-            ):  # if task is overdue (current date is after task due date)
+            ):  # if the task is overdue (current date is after task due date)
                 due_multiplier = -2 / (
                     days_to_due - 1
-                )  # set due multiplier that decreases over time when task is overdue
+                )  # set due multiplier that decreases over time when the task is overdue
             elif days_to_due == 0:  # if task due date is today
                 next_midnight = datetime.combine(
                     datetime.now().date() + timedelta(days=1), datetime.min.time()
@@ -215,7 +215,7 @@ def complete_task(task_id):  # complete task from task id
                 )  # set due multiplier to 2 and increases over time to 4 at midnight
             if (
                 date.today() > task.due_date
-            ):  # check if task is overdue (current date is after task due date)
+            ):  # check if the task is overdue (current date is after task due date)
                 task.streak = 0  # reset streak to 0
             else:
                 task.streak += 1  # increase streak by 1
@@ -269,27 +269,27 @@ def complete_task(task_id):  # complete task from task id
             completed=False
         ).count()  # get number of active tasks (tasks that are not completed)
         if user:
-            user.tasks_completed += 1  # increase number of tasks completed by 1
+            user.tasks_completed += 1  # increase the number of tasks completed by 1
             day_difference = datetime.now() - datetime(
                 user.last_completion_date.year,
                 user.last_completion_date.month,
                 user.last_completion_date.day,
             )  # calculate difference in days
             if day_difference.days == 1:  # if a new day has passed
-                user.daily_streak += 1  # increase daily streak by 1
+                user.daily_streak += 1  # increase the daily streak by 1
                 user.daily_tasks_completed = (
-                    1  # reset number of tasks completed in a day to 1
+                    1  # reset the number of tasks completed in a day to 1
                 )
                 user.days_completed += 1  # increase days completed by 1
             elif day_difference.days > 1:  # if more than a day has passed
-                user.daily_streak = 1  # reset daily streak to 1
+                user.daily_streak = 1  # reset the daily streak to 1
                 user.daily_tasks_completed = (
-                    1  # reset number of tasks completed in a day to 1
+                    1  # reset the number of tasks completed in a day to 1
                 )
                 user.days_completed += 1  # increase days completed by 1
             else:
                 user.daily_tasks_completed += (
-                    1  # increase number of tasks completed in a day by 1
+                    1  # increase the number of tasks completed in a day by 1
                 )
             user.last_completion_date = (
                 datetime.now()
@@ -325,15 +325,15 @@ def delete_task(task_id):  # delete task from task id
 
 def calculate_next_recurring_event(
     original_date, times_completed, repeat_interval, repeat_often
-):  # calculate next recurring event date
+):  # calculate the next recurring event date
     if repeat_often == 1:  # if task repeat often is daily
         return original_date + timedelta(
             days=repeat_interval * times_completed
-        )  # add days to original date
+        )  # add days to the original date
     elif repeat_often == 2:  # if task repeat often is weekly
         return original_date + timedelta(
             weeks=repeat_interval * times_completed
-        )  # add weeks to original date
+        )  # add weeks to the original date
     elif repeat_often == 3:  # if task repeat often is monthly
         new_month = (
             original_date.month + repeat_interval * times_completed
@@ -347,7 +347,7 @@ def calculate_next_recurring_event(
         ]  # get number of days in month
         return datetime(
             new_year, new_month, min(original_date.day, max_days_in_month)
-        )  # add months to original date
+        )  # add months to the original date
     elif repeat_often == 4:  # if task repeat often is yearly
         new_year = original_date.year + repeat_interval * times_completed
         max_days_in_month = calendar.monthrange(new_year, original_date.month)[
@@ -368,7 +368,7 @@ def init_db():  # initialize database
         db.create_all()  # create tables if they don't exist
         if "tasks_completed" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("user")
-        ]:  # check if tasks completed column is not in user table
+        ]:  # check if tasks completed column is not in the user table
             db.session.execute(
                 text(
                     "ALTER TABLE user ADD COLUMN tasks_completed INT NOT NULL DEFAULT 0"
@@ -376,7 +376,7 @@ def init_db():  # initialize database
             )  # create tasks completed column
         if "last_completion_date" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("user")
-        ]:  # check if last completion date column is not in user table
+        ]:  # check if the last completion date column is not in the user table
             db.session.execute(
                 text(
                     "ALTER TABLE user ADD COLUMN last_completion_date DATE NOT NULL DEFAULT CURRENT_DATE"
@@ -385,13 +385,13 @@ def init_db():  # initialize database
             db.session.commit()  # commit database changes
         if "daily_streak" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("user")
-        ]:  # check if tasks completed column is not in user table
+        ]:  # check if tasks completed column is not in the user table
             db.session.execute(
                 text("ALTER TABLE user ADD COLUMN daily_streak INT NOT NULL DEFAULT 1")
             )  # create tasks completed column
         if "daily_tasks_completed" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("user")
-        ]:  # check if daily tasks completed column is not in user table
+        ]:  # check if daily tasks completed column is not in the user table
             db.session.execute(
                 text(
                     "ALTER TABLE user ADD COLUMN daily_tasks_completed INT NOT NULL DEFAULT 0"
@@ -399,19 +399,19 @@ def init_db():  # initialize database
             )  # create daily tasks completed column
         if "days_completed" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("user")
-        ]:  # check if days completed column is not in user table
+        ]:  # check if days completed column is not in the user table
             db.session.execute(
                 text(
                     "ALTER TABLE user ADD COLUMN days_completed INT NOT NULL DEFAULT 1"
                 )
             )  # create days completed column
-        if User.query.count() == 0:  # if there is no users
+        if User.query.count() == 0:  # if there are no users
             new_user = User(username="Player")  # create new user
-            db.session.add(new_user)  # add new user to database
+            db.session.add(new_user)  # add new user to the database
             db.session.commit()  # commit database changes
         if "original_due_date" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if original due date column is not in task table
+        ]:  # check if the original due date column is not in the task table
             db.session.execute(
                 text(
                     "ALTER TABLE task ADD COLUMN original_due_date DATE NOT NULL DEFAULT CURRENT_DATE"
@@ -420,7 +420,7 @@ def init_db():  # initialize database
             db.session.commit()  # commit database changes
         if "due_date" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if due date column is not in task table
+        ]:  # check if due date column is not in the task table
             db.session.execute(
                 text(
                     "ALTER TABLE task ADD COLUMN due_date DATE NOT NULL DEFAULT CURRENT_DATE"
@@ -429,19 +429,19 @@ def init_db():  # initialize database
             db.session.commit()  # commit database changes
         if "priority" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if priority column is not in task table
+        ]:  # check if priority column is not in the task table
             db.session.execute(
                 text("ALTER TABLE task ADD COLUMN priority INT NOT NULL DEFAULT 1")
             )  # create priority column
         if "difficulty" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if difficulty column is not in task table
+        ]:  # check if difficulty column is not in the task table
             db.session.execute(
                 text("ALTER TABLE task ADD COLUMN difficulty INT NOT NULL DEFAULT 1")
             )  # create difficulty column
         if "repeat_interval" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if repeat interval column is not in task table
+        ]:  # check if repeat interval column is not in the task table
             db.session.execute(
                 text(
                     "ALTER TABLE task ADD COLUMN repeat_interval INT NOT NULL DEFAULT 1"
@@ -449,13 +449,13 @@ def init_db():  # initialize database
             )  # create repeat interval column
         if "repeat_often" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if repeat often column is not in task table
+        ]:  # check if repeat often column is not in the task table
             db.session.execute(
                 text("ALTER TABLE task ADD COLUMN repeat_often INT NOT NULL DEFAULT 5")
             )  # create repeat often column
         if "times_completed" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if times completed column is not in task table
+        ]:  # check if times completed column is not in the task table
             db.session.execute(
                 text(
                     "ALTER TABLE task ADD COLUMN times_completed INT NOT NULL DEFAULT 0"
@@ -463,11 +463,11 @@ def init_db():  # initialize database
             )  # create times completed column
         if "streak" not in [
             column["name"] for column in db.inspect(db.engine).get_columns("task")
-        ]:  # check if streak column is not in task table
+        ]:  # check if streak column is not in the task table
             db.session.execute(
                 text("ALTER TABLE task ADD COLUMN streak INT NOT NULL DEFAULT 0")
             )  # create streak column
-        tasks = Task.query.all()  # get list of tasks
+        tasks = Task.query.all()  # get the list of tasks
         for task in tasks:  # repeat for each task
             if (
                 task.original_due_date is None
@@ -481,7 +481,7 @@ def init_db():  # initialize database
                 task.priority = 1  # set task priority to low
             if task.difficulty is None:  # check if task difficulty is none
                 task.difficulty = 1  # set task difficulty to low
-            if task.repeat_interval is None:  # check if repeat interval is none
+            if task.repeat_interval is None:  # check if the repeat interval is none
                 task.repeat_interval = 1  # set repeat interval to 1
             if task.repeat_often is None:  # check if repeat often is none
                 task.repeat_often = 1  # set repeat often to once
