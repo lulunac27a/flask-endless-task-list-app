@@ -32,16 +32,16 @@
       Add New Task<br />
       <form action="{{ url_for('add_task') }}" method="post">
         <!--form to add task-->
-        Name:
-        <input
+        <label for="name">Name: </label
+        ><input
           type="text"
           id="name"
           name="name"
           maxlength="80"
           required
         /><br />
-        Due date:
-        <input
+        <label for="due_date">Due date: </label
+        ><input
           type="date"
           id="due_date"
           name="due_date"
@@ -50,20 +50,20 @@
           value="{{ today }}"
           required
         /><br />
-        Priority:
-        <select id="priority" name="priority">
+        <label for="priority">Priority: </label
+        ><select id="priority" name="priority">
           <option value="1" selected>Low</option>
           <option value="2">Medium</option>
           <option value="3">High</option></select
         ><br />
-        Difficulty:
-        <select id="difficulty" name="difficulty">
+        <label for="difficulty">Difficulty: </label
+        ><select id="difficulty" name="difficulty">
           <option value="1" selected>Easy</option>
           <option value="2">Medium</option>
           <option value="3">Hard</option></select
         ><br />
-        Repeat every:
-        <input
+        <label for="repeat_interval">Repeat every: </label
+        ><input
           type="number"
           id="repeat_interval"
           name="repeat_interval"
@@ -71,8 +71,8 @@
           step="1"
           value="1"
         /><br />
-        Repeat interval:
-        <select id="repeat_often" name="repeat_often">
+        <label for="repeat_often">Repeat interval: </label
+        ><select id="repeat_often" name="repeat_often">
           <option value="1">Daily</option>
           <option value="2">Weekly</option>
           <option value="3">Monthly</option>
