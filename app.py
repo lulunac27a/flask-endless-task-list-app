@@ -55,10 +55,10 @@ class User(db.Model):
         ):  # if user XP is greater than or equal to XP required
             self.xp -= self.xp_required
             self.xp_required = max(
-                1,
+                1.0,
                 round(
                     self.xp_required
-                    + max(1, self.xp_required * 1 / math.sqrt(self.level))
+                    + max(1.0, self.xp_required * 1.0 / math.sqrt(self.level))
                 ),
             )  # increase XP required exponentially with slower growth at higher levels
             self.level += 1  # increase level
