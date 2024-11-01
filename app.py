@@ -5,6 +5,8 @@ import os
 from flask import Flask, flash, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from sqlalchemy.orm.relationships import RelationshipProperty
+from werkzeug.wrappers import Response
 
 
 app = Flask(__name__)
@@ -15,32 +17,35 @@ db = SQLAlchemy(app)
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True,
-                   unique=True, nullable=False)  # user id
-    username = db.Column(db.String(80), unique=True,
-                         nullable=False)  # username
-    xp = db.Column(db.Float, default=0, nullable=False)  # user XP
-    xp_required = db.Column(db.Float, default=1,
-                            nullable=False)  # user XP required
-    total_xp = db.Column(db.Float, default=0, nullable=False)  # user total XP
-    level = db.Column(db.Integer, default=1, nullable=False)  # user level
-    tasks_completed = db.Column(
+    id: int = db.Column(
+        db.Integer, primary_key=True, unique=True, nullable=False
+    )  # user id
+    username: str = db.Column(
+        db.String(80), unique=True, nullable=False)  # username
+    xp: float = db.Column(db.Float, default=0, nullable=False)  # user XP
+    xp_required: float = db.Column(
+        db.Float, default=1, nullable=False
+    )  # user XP required
+    total_xp: float = db.Column(
+        db.Float, default=0, nullable=False)  # user total XP
+    level: int = db.Column(db.Integer, default=1, nullable=False)  # user level
+    tasks_completed: int = db.Column(
         db.Integer, default=0, nullable=False
     )  # number of times tasks has completed
-    last_completion_date = db.Column(
+    last_completion_date: date = db.Column(
         db.Date, default=date.today(), nullable=False
     )  # user last task completion date
-    daily_streak = db.Column(
+    daily_streak: int = db.Column(
         db.Integer, default=0, nullable=False
     )  # user daily task streak
-    daily_tasks_completed = db.Column(
+    daily_tasks_completed: int = db.Column(
         db.Integer, default=0, nullable=False
     )  # user number of tasks completed in a day
-    days_completed = db.Column(
+    days_completed: int = db.Column(
         db.Integer, default=0, nullable=False
     )  # user days completed with tasks
 
-    def add_xp(self, amount):  # add XP
+    def add_xp(self, amount: float) -> None:  # add XP
         self.xp += amount  # add XP by amount
         self.total_xp += amount  # add total XP by amount
         flash(
@@ -49,7 +54,7 @@ class User(db.Model):
         )  # display message with the amount of XP earned
         self.check_level_up()  # check if user has leveled up
 
-    def check_level_up(self):  # check if user has leveled up
+    def check_level_up(self) -> None:  # check if user has leveled up
         while (
             self.xp >= self.xp_required
         ):  # if user XP is greater than or equal to XP required
@@ -65,40 +70,47 @@ class User(db.Model):
 
 
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True,
-                   unique=True, nullable=False)  # task id
-    name = db.Column(db.String(80), nullable=False)  # task name
-    original_due_date = db.Column(
+    id: int = db.Column(
+        db.Integer, primary_key=True, unique=True, nullable=False
+    )  # task id
+    name: str = db.Column(db.String(80), nullable=False)  # task name
+    original_due_date: date = db.Column(
         db.Date, default=date.today(), nullable=False
     )  # task due date
-    due_date = db.Column(db.Date, default=date.today(),
-                         nullable=False)  # task due date
-    priority = db.Column(db.Integer, default=1,
-                         nullable=False)  # task priority
-    difficulty = db.Column(db.Integer, default=1,
-                           nullable=False)  # task difficulty
-    repeat_interval = db.Column(
+    due_date: date = db.Column(
+        db.Date, default=date.today(), nullable=False
+    )  # task due date
+    priority: int = db.Column(db.Integer, default=1,
+                              nullable=False)  # task priority
+    difficulty: int = db.Column(
+        db.Integer, default=1, nullable=False
+    )  # task difficulty
+    repeat_interval: int = db.Column(
         db.Integer, default=1, nullable=False
     )  # task repeat interval
-    repeat_often = db.Column(db.Integer, default=5,
-                             nullable=False)  # task repeat often
-    times_completed = db.Column(
+    repeat_often: int = db.Column(
+        db.Integer, default=5, nullable=False
+    )  # task repeat often
+    times_completed: int = db.Column(
         db.Integer, default=0, nullable=False
     )  # number of times tasks has completed
-    streak = db.Column(db.Integer, default=0, nullable=False)  # task streak
-    completed = db.Column(
+    streak: int = db.Column(db.Integer, default=0,
+                            nullable=False)  # task streak
+    completed: bool = db.Column(
         db.Boolean, default=False, nullable=False
     )  # is task completed
-    user_id = db.Column(
+    user_id: int = db.Column(
         db.Integer, db.ForeignKey(User.__tablename__ + ".id")
     )  # user id
-    user = db.relationship(
-        "User", backref=db.backref("tasks", lazy=True))  # user
+    user: RelationshipProperty = db.relationship(
+        "User", backref=db.backref("tasks", lazy=True)
+    )  # user
 
 
 @app.template_filter("short_numeric")  # short numeric filter
-# get number in short numeric form with abbreviations
-def short_numeric_filter(value):
+def short_numeric_filter(
+    value: float,
+) -> str:  # get number in short numeric form with abbreviations
     """
     Get the abbreviated numeric value.
     value - the numeric value to convert.
@@ -142,20 +154,21 @@ app.jinja_env.filters["short_numeric"] = short_numeric_filter
 
 
 @app.route("/")
-def index():  # get index page template
-    tasks = Task.query.order_by(
+def index() -> str:  # get index page template
+    tasks: list = Task.query.order_by(
         Task.due_date
     ).all()  # get the list of tasks sorted by due date
-    user = User.query.first()  # get first user
-    # get today's date in YYYY-MM-DD format
-    today = datetime.now().strftime("%Y-%m-%d")
+    user: User = User.query.first()  # get first user
+    today: str = datetime.now().strftime(
+        "%Y-%m-%d"
+    )  # get today's date in YYYY-MM-DD format
     return render_template(
         "index.html", tasks=tasks, user=user, today=today
     )  # redirect to index page template
 
 
 @app.route("/add", methods=["POST"])
-def add_task():  # add the task to the task list
+def add_task() -> Response:  # add the task to the task list
     name = request.form.get("name")  # get name from request form
     due_date = request.form.get("due_date")  # get due date
     priority = int(request.form.get("priority"))  # get priority
@@ -165,7 +178,7 @@ def add_task():  # add the task to the task list
     )  # get task repeat interval
     repeat_often = int(request.form.get("repeat_often")
                        )  # get task repeat often
-    user = User.query.first()  # get first user
+    user: User = User.query.first()  # get first user
     if user:
         new_task = Task(
             name=name,
@@ -174,8 +187,8 @@ def add_task():  # add the task to the task list
             difficulty=difficulty,
             repeat_interval=repeat_interval,
             repeat_often=repeat_often,
-            original_due_date=datetime.strptime(due_date, "%Y-%m-%d"),
-            due_date=datetime.strptime(due_date, "%Y-%m-%d"),
+            original_due_date=datetime.strptime(due_date, "%Y-%m-%d").date(),
+            due_date=datetime.strptime(due_date, "%Y-%m-%d").date(),
         )  # create the new task with input parameters
         db.session.add(new_task)  # add the new task to task list
         db.session.commit()  # commit database changes
@@ -183,10 +196,10 @@ def add_task():  # add the task to the task list
 
 
 @app.route("/complete_task/<int:task_id>")
-def complete_task(task_id):  # complete task from task id
+def complete_task(task_id) -> Response:  # complete task from task id
     task = Task.query.get(task_id)  # get task by task id
     if task:
-        due_multiplier = 1  # set default due multiplier to 1
+        due_multiplier = 1.0  # set default due multiplier to 1
         if task.repeat_often == 5:  # if the task is a one-time task
             task.completed = True  # complete the task
         else:  # if task is repeatable
@@ -269,7 +282,7 @@ def complete_task(task_id):  # complete task from task id
         else:  # if the task repetition interval is one-time
             repeat_multiplier = 5  # get 5x XP multiplier for one-time tasks
         user = User.query.first()  # get first user
-        active_tasks = Task.query.filter_by(
+        active_tasks: int = Task.query.filter_by(
             completed=False
         ).count()  # get number of active tasks (tasks that are not completed)
         if user:
@@ -319,7 +332,7 @@ def complete_task(task_id):  # complete task from task id
 
 
 @app.route("/delete_task/<int:task_id>")
-def delete_task(task_id):  # delete task from task id
+def delete_task(task_id) -> Response:  # delete task from task id
     task = Task.query.get(task_id)  # get task by task id
     if task:
         db.session.delete(task)  # delete task from task list
@@ -328,8 +341,8 @@ def delete_task(task_id):  # delete task from task id
 
 
 def calculate_next_recurring_event(
-    original_date, times_completed, repeat_interval, repeat_often
-):  # calculate the next recurring event date
+    original_date: date, times_completed: int, repeat_interval: int, repeat_often: int
+) -> date:  # calculate the next recurring event date
     if repeat_often == 1:  # if task repeat often is daily
         return original_date + timedelta(
             days=repeat_interval * times_completed
@@ -367,7 +380,7 @@ def calculate_next_recurring_event(
         )  # return original task due date
 
 
-def init_db():  # initialize database
+def init_db() -> None:  # initialize database
     with app.app_context():
         db.create_all()  # create tables if they don't exist
         if "tasks_completed" not in [
@@ -471,7 +484,7 @@ def init_db():  # initialize database
             db.session.execute(
                 text("ALTER TABLE task ADD COLUMN streak INT NOT NULL DEFAULT 0")
             )  # create streak column
-        tasks = Task.query.all()  # get the list of tasks
+        tasks: list = Task.query.all()  # get the list of tasks
         for task in tasks:  # repeat for each task
             if (
                 task.original_due_date is None
