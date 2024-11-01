@@ -157,7 +157,7 @@ def index() -> str:  # get index page template
     tasks: list = Task.query.order_by(
         Task.due_date
     ).all()  # get the list of tasks sorted by due date
-    user: User = User.query.first()  # get first user
+    user: User | None = User.query.first()  # get first user
     today: str = datetime.now().strftime(
         "%Y-%m-%d"
     )  # get today's date in YYYY-MM-DD format
@@ -177,7 +177,7 @@ def add_task() -> Response:  # add the task to the task list
     )  # get task repeat interval
     repeat_often = int(request.form.get("repeat_often")
                        )  # get task repeat often
-    user: User = User.query.first()  # get first user
+    user: User | None = User.query.first()  # get first user
     if user:
         new_task = Task(
             name=name,
@@ -280,7 +280,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
             )  # 4x XP multiplier for yearly tasks (1 year) to 5x XP multiplier for one-time tasks
         else:  # if the task repetition interval is one-time
             repeat_multiplier = 5  # get 5x XP multiplier for one-time tasks
-        user = User.query.first()  # get first user
+        user: User | None = User.query.first()  # get first user
         active_tasks: int = Task.query.filter_by(
             completed=False
         ).count()  # get number of active tasks (tasks that are not completed)
