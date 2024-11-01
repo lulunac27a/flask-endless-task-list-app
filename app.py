@@ -349,7 +349,7 @@ def calculate_next_recurring_event(
         max_days_in_month = calendar.monthrange(new_year, new_month)[
             1
         ]  # get number of days in month
-        return datetime(
+        return date(
             new_year, new_month, min(original_date.day, max_days_in_month)
         )  # add months to the original date
     elif repeat_often == 4:  # if task repeat often is yearly
@@ -357,12 +357,12 @@ def calculate_next_recurring_event(
         max_days_in_month = calendar.monthrange(new_year, original_date.month)[
             1
         ]  # get number of days in month
-        return datetime(
+        return date(
             new_year, original_date.month, min(
                 original_date.day, max_days_in_month)
         )  # add years in original date
     else:
-        return datetime(
+        return date(
             original_date.year, original_date.month, original_date.day
         )  # return original task due date
 
