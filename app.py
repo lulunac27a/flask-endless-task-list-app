@@ -102,9 +102,8 @@ class Task(db.Model):
     user_id: int = db.Column(
         db.Integer, db.ForeignKey(User.__tablename__ + ".id")
     )  # user id
-    user: RelationshipProperty = db.relationship(
-        "User", backref=db.backref("tasks", lazy=True)
-    )  # user
+    user = db.relationship(
+        "User", backref=db.backref("tasks", lazy=True))  # user
 
 
 @app.template_filter("short_numeric")  # short numeric filter
