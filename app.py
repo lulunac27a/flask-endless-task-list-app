@@ -109,7 +109,7 @@ class Task(db.Model):
 
 @app.template_filter("short_numeric")  # short numeric filter
 def short_numeric_filter(
-    value: Union(int, float)
+    value: Union[int, float]
 ) -> str:  # get number in short numeric form with abbreviations
     """
     Get the abbreviated numeric value.
