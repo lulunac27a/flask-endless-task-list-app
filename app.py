@@ -2,6 +2,7 @@ import calendar
 from datetime import datetime, timedelta, date
 import math
 import os
+from typing import Union
 from flask import Flask, flash, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
@@ -108,7 +109,7 @@ class Task(db.Model):
 
 @app.template_filter("short_numeric")  # short numeric filter
 def short_numeric_filter(
-    value: float,
+    value: Union(int, float)
 ) -> str:  # get number in short numeric form with abbreviations
     """
     Get the abbreviated numeric value.
