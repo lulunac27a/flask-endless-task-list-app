@@ -1,43 +1,44 @@
 * {
-    font-family: system-ui,  Arial, Helvetica, sans-serif;
-    line-height: 125%;
+  /*global styles*/
+  font-family: system-ui, Arial, Helvetica, sans-serif;
+  line-height: 125%;
 }
 progress {
-    height: 50px;
-    padding: 5px;
-    max-width: 300px;
-    width: 100%;
-    accent-color: #4888c8;
+  height: 50px;
+  padding: 5px;
+  max-width: 300px;
+  width: 100%;
+  accent-color: #4888c8;
 }
 .progress-container {
-    position: relative;
-    width: 100%;
-    max-width: 300px;
+  position: relative;
+  width: 100%;
+  max-width: 300px;
 }
 .progress-bar {
-    width: 100%;
+  width: 100%;
 }
 .progress-text {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    top: 15px;
-    color: black;
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 15px;
+  color: black;
 }
 .popup-message {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    border: 1px solid #999;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border: 1px solid #999;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .popup-message p {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
 }
