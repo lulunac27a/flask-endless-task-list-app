@@ -1,2 +1,4 @@
 # Ignore generated database files
-instance
+/instance
+__pycache__/
+*.pyc
