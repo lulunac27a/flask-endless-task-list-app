@@ -4,7 +4,7 @@ import math
 import os
 from typing import Union
 from flask import Flask, flash, render_template, request, redirect, url_for
-from flask_migrate import Migrate, migrate
+from flask_migrate import Migrate as MigrateClass
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from sqlalchemy.orm.relationships import RelationshipProperty
@@ -16,7 +16,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = os.environ["SECRET_KEY"]
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+migrate_instance = MigrateClass(app, db)
 
 
 class User(db.Model):
