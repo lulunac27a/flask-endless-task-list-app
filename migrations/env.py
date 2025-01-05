@@ -7,12 +7,12 @@ from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config: context.Config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
-logger = logging.getLogger("alembic.env")
+logger: logging.Logger = logging.getLogger("alembic.env")
 
 
 def get_engine():
@@ -24,7 +24,7 @@ def get_engine():
         return current_app.extensions["migrate"].db.engine
 
 
-def get_engine_url():
+def get_engine_url() -> logging.Any | str:
     try:
         return get_engine().url.render_as_string(hide_password=False).replace("%", "%%")
     except AttributeError:
@@ -44,13 +44,13 @@ target_db = current_app.extensions["migrate"].db
 # ... etc.
 
 
-def get_metadata():
+def get_metadata():  # -> target_db:
     if hasattr(target_db, "metadatas"):
         return target_db.metadatas[None]
     return target_db.metadata
 
 
-def run_migrations_offline():
+def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL
@@ -70,7 +70,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 
-def run_migrations_online():
+def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
