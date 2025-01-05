@@ -7,6 +7,7 @@ from flask import Flask, flash, render_template, request, redirect, url_for
 from flask_migrate import Migrate as MigrateClass
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from sqlalchemy.orm import Mapped
 from sqlalchemy.orm.relationships import RelationshipProperty
 from werkzeug.wrappers import Response
 
@@ -105,7 +106,7 @@ class Task(db.Model):
     user_id: int = db.Column(
         db.Integer, db.ForeignKey(User.__tablename__ + ".id")
     )  # user id
-    user = db.relationship(
+    user: Mapped["User"] = db.relationship(
         "User", backref=db.backref("tasks", lazy=True)
     )  # user relationship
 
