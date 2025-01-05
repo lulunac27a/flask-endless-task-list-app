@@ -118,7 +118,7 @@ def short_numeric_filter(
     Get the abbreviated numeric value.
     value - the numeric value to convert.
     """
-    units = [
+    units: list[str] = [
         "",
         "K",
         "M",
@@ -143,7 +143,7 @@ def short_numeric_filter(
         "V",
     ]  # list of units with abbreviations
     exponent = 0
-    mantissa = value  # mantissa value from 1 to 999
+    mantissa: Union[int, float] = value  # mantissa value from 1 to 999
     while mantissa >= 1000:  # repeat until mantissa is within 1 to 999
         mantissa /= 1000
         exponent += 1
@@ -172,8 +172,8 @@ def index() -> str:  # get index page template
 
 @app.route("/add", methods=["POST"])
 def add_task() -> Response:  # add the task to the task list
-    name = request.form.get("name")  # get name from request form
-    due_date = request.form.get("due_date")  # get due date
+    name: str = request.form.get("name")  # get name from request form
+    due_date: str = request.form.get("due_date")  # get due date
     priority = int(request.form.get("priority"))  # get priority
     difficulty = int(request.form.get("difficulty"))  # get difficulty
     repeat_interval = int(
@@ -213,11 +213,11 @@ def complete_task(task_id) -> Response:  # complete task from task id
                 task.repeat_interval,
                 task.repeat_often,
             )  # calculate the next task due date
-            days_to_due = (
+            days_to_due: int = (
                 task.due_date - date.today()
             ).days  # calculate the number of days until the task is due
             if days_to_due > 0:  # if task due date is after today
-                due_multiplier = 1 + 1 / (
+                due_multiplier: float = 1 + 1 / (
                     days_to_due + 1
                 )  # set due multiplier that increases over time when the task is closer to due date
             elif (
@@ -241,7 +241,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
                 task.streak += 1  # increase streak by 1
         if task.repeat_often == 1:  # if the task repetition interval is daily
             if task.repeat_interval < 7:  # 7 days is 1 week
-                repeat_multiplier = 1 + (task.repeat_interval - 1) / (
+                repeat_multiplier: float = 1 + (task.repeat_interval - 1) / (
                     7 - 1
                 )  # 1x XP multiplier for daily tasks (1 day) to 2x XP multiplier for weekly tasks (7 days)
             elif task.repeat_interval < 30:  # approximately 30 days is 1 month
@@ -336,7 +336,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
 
 @app.route("/delete_task/<int:task_id>")
 def delete_task(task_id) -> Response:  # delete task from task id
-    task = Task.query.get(task_id)  # get task by task id
+    task: Union[Task, None] = Task.query.get(task_id)  # get task by task id
     if task:
         db.session.delete(task)  # delete task from task list
         db.session.commit()  # commit database changes
