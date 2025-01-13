@@ -228,7 +228,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
                     days_to_due - 1
                 )  # set due multiplier that decreases over time when the task is overdue
             elif days_to_due == 0:  # if task due date is today
-                next_midnight = datetime.combine(
+                next_midnight: datetime = datetime.combine(
                     datetime.now().date() + timedelta(days=1), datetime.min.time()
                 )
                 due_multiplier = 4 / (
