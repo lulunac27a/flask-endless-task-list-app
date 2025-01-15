@@ -90,29 +90,31 @@ class Task(db.Model):
     )  # task id
     name: str = db.Column(db.String(80), nullable=False)  # task name
     original_due_date: date = db.Column(
-        db.Date, default=date.today(), nullable=False
+        db.Date, default=date.today(), server_default="CURRENT_DATE", nullable=False
     )  # task due date
     due_date: date = db.Column(
-        db.Date, default=date.today(), nullable=False
+        db.Date, default=date.today(), server_default="CURRENT_DATE", nullable=False
     )  # task due date
-    priority: int = db.Column(db.Integer, default=1,
-                              nullable=False)  # task priority
+    priority: int = db.Column(
+        db.Integer, default=1, server_default="1", nullable=False
+    )  # task priority
     difficulty: int = db.Column(
-        db.Integer, default=1, nullable=False
+        db.Integer, default=1, server_default="1", nullable=False
     )  # task difficulty
     repeat_interval: int = db.Column(
-        db.Integer, default=1, nullable=False
+        db.Integer, default=1, server_default="1", nullable=False
     )  # task repeat interval
     repeat_often: int = db.Column(
-        db.Integer, default=5, nullable=False
+        db.Integer, default=5, server_default="5", nullable=False
     )  # task repeat often
     times_completed: int = db.Column(
-        db.Integer, default=0, nullable=False
+        db.Integer, default=0, server_default="0", nullable=False
     )  # number of times tasks has completed
-    streak: int = db.Column(db.Integer, default=0,
-                            nullable=False)  # task streak
+    streak: int = db.Column(
+        db.Integer, default=0, server_default="0", nullable=False
+    )  # task streak
     completed: bool = db.Column(
-        db.Boolean, default=False, nullable=False
+        db.Boolean, default=False, server_default="0", nullable=False
     )  # is task completed
     user_id: int = db.Column(
         db.Integer, db.ForeignKey(User.__tablename__ + ".id")
