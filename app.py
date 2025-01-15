@@ -48,6 +48,12 @@ class User(db.Model):
     days_completed: int = db.Column(
         db.Integer, default=0, nullable=False
     )  # user days completed with tasks
+    combo_multiplier: int = db.Column(
+        db.Integer, default=0, nullable=False
+    )  # user XP multiplier for combo
+    last_task_completed: int = db.Column(
+        db.Integer, default=-1, nullable=False
+    )  # user last task completion ID
 
     def add_xp(self, amount: float) -> None:  # add XP
         self.xp += amount  # add XP by amount
@@ -315,6 +321,15 @@ def complete_task(task_id) -> Response:  # complete task from task id
             user.last_completion_date = (
                 datetime.now()
             )  # set user last completion date to today
+            if (
+                task.id == user.last_completed_task
+            ):  # if the task is the last completed task
+                user.combo_multiplier += 1  # increase combo multipler by 1
+            else:
+                user.combo_multiplier = 0  # reset combo multiplier to 0
+            user.last_completed_task = (
+                task.id
+            )  # set user last completed task to task id
             user.add_xp(
                 round(
                     task.priority
@@ -329,7 +344,9 @@ def complete_task(task_id) -> Response:  # complete task from task id
                     * (1 + math.log(max(user.days_completed, 1)))
                     * (1 + task.streak / 10)
                     * due_multiplier
+                    * (1 + user.combo_multiplier / 10)
                 )
+                + user.combo_multiplier
             )  # add XP
             db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
