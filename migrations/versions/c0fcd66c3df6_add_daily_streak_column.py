@@ -8,6 +8,7 @@ Create Date: 2025-01-04 18:51:36.383519
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import func
 
 
 # revision identifiers, used by Alembic.
@@ -25,7 +26,7 @@ def upgrade():
                 "last_completion_date",
                 sa.Date(),
                 nullable=False,
-                server_default=sa.text("2025-01-04"),
+                server_default=sa.text(func.current_date()),
             )
         )
         batch_op.add_column(
