@@ -30,8 +30,8 @@ def upgrade():
                existing_server_default=sa.text('0'))
 
     with op.batch_alter_table('user', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('combo_multiplier', sa.Integer(), nullable=False))
-        batch_op.add_column(sa.Column('last_task_completed', sa.Integer(), nullable=False))
+        batch_op.add_column(sa.Column('combo_multiplier', sa.Integer(), nullable=False, server_default='0'))
+        batch_op.add_column(sa.Column('last_task_completed', sa.Integer(), nullable=False, server_default='-1'))
         batch_op.alter_column('tasks_completed',
                existing_type=sa.INTEGER(),
                nullable=False,
