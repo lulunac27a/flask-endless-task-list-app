@@ -6,7 +6,7 @@ from typing import Union
 from flask import Flask, flash, render_template, request, redirect, url_for
 from flask_migrate import Migrate as MigrateClass
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import text
+from sqlalchemy import func, text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm.relationships import RelationshipProperty
 from werkzeug.wrappers import Response
@@ -42,7 +42,10 @@ class User(db.Model):
         db.Integer, default=0, server_default="0", nullable=False
     )  # number of times tasks has completed
     last_completion_date: date = db.Column(
-        db.Date, default=date.today(), server_default="CURRENT_DATE", nullable=False
+        db.Date,
+        default=func.current_date(),
+        server_default=func.current_date(),
+        nullable=False,
     )  # user last task completion date
     daily_streak: int = db.Column(
         db.Integer, default=0, server_default="0", nullable=False
@@ -90,10 +93,16 @@ class Task(db.Model):
     )  # task id
     name: str = db.Column(db.String(80), nullable=False)  # task name
     original_due_date: date = db.Column(
-        db.Date, default=date.today(), server_default="CURRENT_DATE", nullable=False
+        db.Date,
+        default=func.current_date(),
+        server_default=func.current_date(),
+        nullable=False,
     )  # task due date
     due_date: date = db.Column(
-        db.Date, default=date.today(), server_default="CURRENT_DATE", nullable=False
+        db.Date,
+        default=func.current_date(),
+        server_default=func.current_date(),
+        nullable=False,
     )  # task due date
     priority: int = db.Column(
         db.Integer, default=1, server_default="1", nullable=False
