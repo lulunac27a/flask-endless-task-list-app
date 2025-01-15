@@ -25,7 +25,7 @@ def get_engine():
         return current_app.extensions["migrate"].db.engine
 
 
-def get_engine_url() -> logging.Any | str:
+def get_engine_url() -> str:
     try:
         return get_engine().url.render_as_string(hide_password=False).replace("%", "%%")
     except AttributeError:
