@@ -356,10 +356,11 @@ def calculate_next_recurring_event(
             weeks=repeat_interval * times_completed
         )  # add weeks to the original date
     elif repeat_often == 3:  # if task repeat often is monthly
-        new_month = (
+        new_month: int = (
             original_date.month + repeat_interval * times_completed
         )  # get new month
-        new_year = original_date.year + (new_month - 1) // 12  # get new year
+        new_year: int = original_date.year + \
+            (new_month - 1) // 12  # get new year
         new_month = (
             new_month - 1
         ) % 12 + 1  # clamp month from 1 (January) to 12 (December)
