@@ -203,7 +203,7 @@ def add_task() -> Response:  # add the task to the task list
 def complete_task(task_id) -> Response:  # complete task from task id
     task = Task.query.get(task_id)  # get task by task id
     if task:
-        due_multiplier = 1.0  # set default due multiplier to 1
+        due_multiplier: float = 1.0  # set default due multiplier to 1
         if task.repeat_often == 5:  # if the task is a one-time task
             task.completed = True  # complete the task
         else:  # if task is repeatable
