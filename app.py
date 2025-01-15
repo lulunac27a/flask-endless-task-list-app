@@ -451,6 +451,22 @@ def init_db() -> None:  # initialize database
                     "ALTER TABLE user ADD COLUMN days_completed INT NOT NULL DEFAULT 1"
                 )
             )  # create days completed column
+        if "combo_multiplier" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if combo multiplier column is not in the user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN combo_multiplier INT NOT NULL DEFAULT 0"
+                )
+            )  # create combo multiplier column
+        if "last_task_completed" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if last task completed column is not in the user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN last_task_completed INT NOT NULL DEFAULT -1"
+                )
+            )  # create last task completed column
         if User.query.count() == 0:  # if there are no users
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to the database
