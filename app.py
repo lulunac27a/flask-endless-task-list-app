@@ -26,33 +26,38 @@ class User(db.Model):
     )  # user id
     username: str = db.Column(
         db.String(80), unique=True, nullable=False)  # username
-    xp: float = db.Column(db.Float, default=0, nullable=False)  # user XP
+    xp: float = db.Column(
+        db.Float, default=0, server_default="0", nullable=False
+    )  # user XP
     xp_required: float = db.Column(
-        db.Float, default=1, nullable=False
+        db.Float, default=1, server_default="1", nullable=False
     )  # user XP required
     total_xp: float = db.Column(
-        db.Float, default=0, nullable=False)  # user total XP
-    level: int = db.Column(db.Integer, default=1, nullable=False)  # user level
+        db.Float, default=0, server_default="0", nullable=False
+    )  # user total XP
+    level: int = db.Column(
+        db.Integer, default=1, server_default="1", nullable=False
+    )  # user level
     tasks_completed: int = db.Column(
-        db.Integer, default=0, nullable=False
+        db.Integer, default=0, server_default="0", nullable=False
     )  # number of times tasks has completed
     last_completion_date: date = db.Column(
-        db.Date, default=date.today(), nullable=False
+        db.Date, default=date.today(), server_default="CURRENT_DATE", nullable=False
     )  # user last task completion date
     daily_streak: int = db.Column(
-        db.Integer, default=0, nullable=False
+        db.Integer, default=0, server_default="0", nullable=False
     )  # user daily task streak
     daily_tasks_completed: int = db.Column(
-        db.Integer, default=0, nullable=False
+        db.Integer, default=0, server_default="0", nullable=False
     )  # user number of tasks completed in a day
     days_completed: int = db.Column(
-        db.Integer, default=0, nullable=False
+        db.Integer, default=0, server_default="0", nullable=False
     )  # user days completed with tasks
     combo_multiplier: int = db.Column(
-        db.Integer, default=0, nullable=False
+        db.Integer, default=0, server_default="0", nullable=False
     )  # user XP multiplier for combo
     last_task_completed: int = db.Column(
-        db.Integer, default=-1, nullable=False
+        db.Integer, default=-1, server_default="-1", nullable=False
     )  # user last task completion ID
 
     def add_xp(self, amount: float) -> None:  # add XP
