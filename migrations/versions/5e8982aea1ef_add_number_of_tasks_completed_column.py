@@ -22,7 +22,10 @@ def upgrade():
     with op.batch_alter_table("user", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
-                "tasks_completed", sa.Integer(), nullable=False, server_default="0"
+                "tasks_completed",
+                sa.Integer(),
+                nullable=False,
+                server_default=sa.text("0"),
             )
         )
 

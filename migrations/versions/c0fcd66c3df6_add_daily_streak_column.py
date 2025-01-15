@@ -25,12 +25,16 @@ def upgrade():
                 "last_completion_date",
                 sa.Date(),
                 nullable=False,
-                server_default="2025-01-04",
+                server_default=sa.text("2025-01-04"),
             )
         )
         batch_op.add_column(
-            sa.Column("daily_streak", sa.Integer(),
-                      nullable=False, server_default="0")
+            sa.Column(
+                "daily_streak",
+                sa.Integer(),
+                nullable=False,
+                server_default=sa.text("0"),
+            )
         )
 
     # ### end Alembic commands ###

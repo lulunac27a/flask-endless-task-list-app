@@ -25,7 +25,7 @@ def upgrade():
                 "daily_tasks_completed",
                 sa.Integer(),
                 nullable=False,
-                server_default="0",
+                server_default=sa.text("0"),
             )
         )
 
