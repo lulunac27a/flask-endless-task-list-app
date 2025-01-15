@@ -322,14 +322,14 @@ def complete_task(task_id) -> Response:  # complete task from task id
                 datetime.now()
             )  # set user last completion date to today
             if (
-                task.id == user.last_completed_task
-            ):  # if the task is the last completed task
+                task.id == user.last_task_completed
+            ):  # if the task is the last task completed
                 user.combo_multiplier += 1  # increase combo multipler by 1
             else:
                 user.combo_multiplier = 0  # reset combo multiplier to 0
-            user.last_completed_task = (
+            user.last_task_completed = (
                 task.id
-            )  # set user last completed task to task id
+            )  # set user last task completed to task id
             user.add_xp(
                 round(
                     task.priority
