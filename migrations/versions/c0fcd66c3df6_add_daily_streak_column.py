@@ -26,7 +26,7 @@ def upgrade():
                 "last_completion_date",
                 sa.Date(),
                 nullable=False,
-                server_default=sa.text(func.current_date()),
+                server_default=func.current_date(),
             )
         )
         batch_op.add_column(
