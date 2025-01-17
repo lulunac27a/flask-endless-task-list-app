@@ -240,13 +240,13 @@ def complete_task(task_id) -> Response:  # complete task from task id
             ).days  # calculate the number of days until the task is due
             if days_to_due > 0:  # if task due date is after today
                 due_multiplier: float = 1 + 1 / (
-                    days_to_due + 1
+                    max(1, days_to_due + 1)
                 )  # set due multiplier that increases over time when the task is closer to due date
             elif (
                 days_to_due < 0
             ):  # if the task is overdue (current date is after task due date)
                 due_multiplier = -2 / (
-                    days_to_due - 1
+                    min(-1, days_to_due - 1)
                 )  # set due multiplier that decreases over time when the task is overdue
             elif days_to_due == 0:  # if task due date is today
                 next_midnight: datetime = datetime.combine(
