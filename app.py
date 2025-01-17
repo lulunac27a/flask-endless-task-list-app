@@ -251,7 +251,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
             elif days_to_due == 0:  # if task due date is today
                 next_midnight: datetime = datetime.combine(
                     datetime.now().date() + timedelta(days=1), datetime.min.time()
-                )
+                )  # time at next midnight from now
                 due_multiplier = 4 / (
                     1 + (next_midnight - datetime.now()) / timedelta(days=1)
                 )  # set due multiplier to 2 and increases over time to 4 at midnight
