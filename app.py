@@ -312,7 +312,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
         ).count()  # get number of active tasks (tasks that are not completed)
         if user:
             user.tasks_completed += 1  # increase the number of tasks completed by 1
-            day_difference = datetime.now() - datetime(
+            day_difference: timedelta = datetime.now() - datetime(
                 user.last_completion_date.year,
                 user.last_completion_date.month,
                 user.last_completion_date.day,
