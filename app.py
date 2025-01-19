@@ -222,7 +222,7 @@ def add_task() -> Response:  # add the task to the task list
 
 @app.route("/complete_task/<int:task_id>")
 def complete_task(task_id) -> Response:  # complete task from task id
-    task = Task.query.get(task_id)  # get task by task id
+    task: Union[Task, None] = Task.query.get(task_id)  # get task by task id
     if task:  # if task exists
         due_multiplier: float = 1.0  # set default due multiplier to 1
         if task.repeat_often == 5:  # if the task is a one-time task
@@ -370,7 +370,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
 @app.route("/delete_task/<int:task_id>")
 def delete_task(task_id) -> Response:  # delete task from task id
     task: Union[Task, None] = Task.query.get(task_id)  # get task by task id
-    if task:
+    if task:  # if task exists
         db.session.delete(task)  # delete task from task list
         db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
@@ -404,7 +404,7 @@ def calculate_next_recurring_event(
         )  # add months to the original date
     elif repeat_often == 4:  # if task repeat often is yearly
         new_year = original_date.year + repeat_interval * times_completed
-        max_days_in_month = calendar.monthrange(new_year, original_date.month)[
+        max_days_in_month: int = calendar.monthrange(new_year, original_date.month)[
             1
         ]  # get number of days in month
         return date(
