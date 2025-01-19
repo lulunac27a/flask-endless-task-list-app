@@ -204,7 +204,7 @@ def add_task() -> Response:  # add the task to the task list
     repeat_often = int(request.form.get("repeat_often")
                        )  # get task repeat often
     user: Union[User, None] = User.query.first()  # get first user
-    if user:
+    if user:  # if user exists
         new_task = Task(
             name=name,
             user_id=user.id,
@@ -223,7 +223,7 @@ def add_task() -> Response:  # add the task to the task list
 @app.route("/complete_task/<int:task_id>")
 def complete_task(task_id) -> Response:  # complete task from task id
     task = Task.query.get(task_id)  # get task by task id
-    if task:
+    if task:  # if task exists
         due_multiplier: float = 1.0  # set default due multiplier to 1
         if task.repeat_often == 5:  # if the task is a one-time task
             task.completed = True  # complete the task
@@ -310,7 +310,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
         active_tasks: int = Task.query.filter_by(
             completed=False
         ).count()  # get number of active tasks (tasks that are not completed)
-        if user:
+        if user:  # if user exists
             user.tasks_completed += 1  # increase the number of tasks completed by 1
             day_difference: timedelta = datetime.now() - datetime(
                 user.last_completion_date.year,
