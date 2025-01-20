@@ -1,3 +1,7 @@
+"""
+A task list app written in Flask with levels and experience points (XP).
+"""
+
 import calendar
 from datetime import datetime, timedelta, date
 import math
@@ -20,6 +24,10 @@ migrate_instance = MigrateClass(app, db)
 
 
 class User(db.Model):
+    """
+    A user model with information to store the level and experience points (XP).
+    """
+
     id: int = db.Column(
         db.Integer, primary_key=True, unique=True, nullable=False
     )  # user id
@@ -63,6 +71,10 @@ class User(db.Model):
     )  # user last task completion ID
 
     def add_xp(self, amount: float) -> None:  # add XP
+        """
+        Add XP (experience points) to the user.
+        amount - the amount to add XP.
+        """
         self.xp += amount  # add XP by amount
         self.total_xp += amount  # add total XP by amount
         flash(
@@ -72,6 +84,9 @@ class User(db.Model):
         self.check_level_up()  # check if user has leveled up
 
     def check_level_up(self) -> None:  # check if user has leveled up
+        """
+        Check if the user has leveled up.
+        """
         while (
             self.xp >= self.xp_required
         ):  # if user XP is greater than or equal to XP required
@@ -87,6 +102,10 @@ class User(db.Model):
 
 
 class Task(db.Model):
+    """
+    A task model with information to store the name, due date, priority, difficulty, repeat interval, repeat often, and completion status.
+    """
+
     id: int = db.Column(
         db.Integer, primary_key=True, unique=True, nullable=False
     )  # task id
@@ -180,6 +199,9 @@ app.jinja_env.filters["short_numeric"] = short_numeric_filter
 
 @app.route("/")
 def index() -> str:  # get index page template
+    """
+    Return the index page with tasks, users and today's date.
+    """
     tasks: list = Task.query.order_by(
         Task.due_date
     ).all()  # get the list of tasks sorted by due date
@@ -194,6 +216,9 @@ def index() -> str:  # get index page template
 
 @app.route("/add", methods=["POST"])
 def add_task() -> Response:  # add the task to the task list
+    """
+    Add a new task to the task list.
+    """
     name: str = request.form.get("name")  # get name from request form
     due_date: str = request.form.get("due_date")  # get due date
     priority = int(request.form.get("priority"))  # get priority
@@ -222,6 +247,10 @@ def add_task() -> Response:  # add the task to the task list
 
 @app.route("/complete_task/<int:task_id>")
 def complete_task(task_id) -> Response:  # complete task from task id
+    """
+    Complete the task with the given task ID.
+    task_id - the ID of the task to complete.
+    """
     task: Union[Task, None] = Task.query.get(task_id)  # get task by task id
     if task is not None:  # if task exists
         due_multiplier: float = 1.0  # set default due multiplier to 1
@@ -369,6 +398,10 @@ def complete_task(task_id) -> Response:  # complete task from task id
 
 @app.route("/delete_task/<int:task_id>")
 def delete_task(task_id) -> Response:  # delete task from task id
+    """
+    Delete the task based on the task ID.
+    task_id - the ID of the task to delete.
+    """
     task: Union[Task, None] = Task.query.get(task_id)  # get task by task id
     if task is not None:  # if task exists
         db.session.delete(task)  # delete task from task list
@@ -379,6 +412,13 @@ def delete_task(task_id) -> Response:  # delete task from task id
 def calculate_next_recurring_event(
     original_date: date, times_completed: int, repeat_interval: int, repeat_often: int
 ) -> date:  # calculate the next recurring event date
+    """
+    Calculate the next recurring event date based on the original date, times completed, repeat interval, and repeat often.
+    original_date - the original date of the recurring event.
+    times_completed - the number of times the recurring event has been completed.
+    repeat_interval - the interval at which the recurring event repeats.
+    repeat_often - the frequency at which the recurring event repeats.
+    """
     if repeat_often == 1:  # if task repeat often is daily
         return original_date + timedelta(
             days=repeat_interval * times_completed
@@ -418,6 +458,9 @@ def calculate_next_recurring_event(
 
 
 def init_db() -> None:  # initialize database
+    """
+    Initialize the user and task database.
+    """
     with app.app_context():
         db.create_all()  # create tables if they don't exist
         if "tasks_completed" not in [
