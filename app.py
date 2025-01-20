@@ -30,7 +30,7 @@ class User(db.Model):
 
     id: int = db.Column(
         db.Integer, primary_key=True, unique=True, nullable=False
-    )  # user id
+    )  # user ID
     username: str = db.Column(
         db.String(80), unique=True, nullable=False)  # username
     xp: float = db.Column(
@@ -108,7 +108,7 @@ class Task(db.Model):
 
     id: int = db.Column(
         db.Integer, primary_key=True, unique=True, nullable=False
-    )  # task id
+    )  # task ID
     name: str = db.Column(db.String(80), nullable=False)  # task name
     original_due_date: date = db.Column(
         db.Date,
@@ -145,7 +145,7 @@ class Task(db.Model):
     )  # is task completed
     user_id: int = db.Column(
         db.Integer, db.ForeignKey(User.__tablename__ + ".id")
-    )  # user id
+    )  # user ID
     user: Mapped["User"] = db.relationship(
         "User", backref=db.backref("tasks", lazy=True)
     )  # user relationship
@@ -246,12 +246,12 @@ def add_task() -> Response:  # add the task to the task list
 
 
 @app.route("/complete_task/<int:task_id>")
-def complete_task(task_id) -> Response:  # complete task from task id
+def complete_task(task_id) -> Response:  # complete task from task ID
     """
     Complete the task with the given task ID.
     task_id - the ID of the task to complete.
     """
-    task: Union[Task, None] = Task.query.get(task_id)  # get task by task id
+    task: Union[Task, None] = Task.query.get(task_id)  # get task by task ID
     if task is not None:  # if task exists
         due_multiplier: float = 1.0  # set default due multiplier to 1
         if task.repeat_often == 5:  # if the task is a one-time task
@@ -373,7 +373,7 @@ def complete_task(task_id) -> Response:  # complete task from task id
                 user.combo_multiplier = 0  # reset combo multiplier to 0
             user.last_task_completed = (
                 task.id
-            )  # set user last task completed to task id
+            )  # set user last task completed to task ID
             user.add_xp(
                 round(
                     task.priority
@@ -397,12 +397,12 @@ def complete_task(task_id) -> Response:  # complete task from task id
 
 
 @app.route("/delete_task/<int:task_id>")
-def delete_task(task_id) -> Response:  # delete task from task id
+def delete_task(task_id) -> Response:  # delete task from task ID
     """
     Delete the task based on the task ID.
     task_id - the ID of the task to delete.
     """
-    task: Union[Task, None] = Task.query.get(task_id)  # get task by task id
+    task: Union[Task, None] = Task.query.get(task_id)  # get task by task ID
     if task is not None:  # if task exists
         db.session.delete(task)  # delete task from task list
         db.session.commit()  # commit database changes
