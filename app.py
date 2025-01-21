@@ -385,7 +385,7 @@ def complete_task(task_id) -> Response:  # complete task from task ID
             )  # set user last task completed to task ID
             current_time: datetime = datetime.now(
                 timezone.utc)  # get current time
-            last_time_clicked_aware: datetime = self.last_time_clicked.replace(
+            last_time_clicked_aware: datetime = user.last_time_clicked.replace(
                 tzinfo=timezone.utc
             )  # set timezone to UTC
             time_difference: timedelta = (
@@ -397,12 +397,12 @@ def complete_task(task_id) -> Response:  # complete task from task ID
             if (
                 abs(time_difference_seconds) < 5
             ):  # check if time difference is less than 5 seconds
-                self.time_multiplier += 1  # increase time multiplier
+                user.time_multiplier += 1  # increase time multiplier
             else:
-                self.time_multiplier = (
+                user.time_multiplier = (
                     1  # reset time multiplier if time difference is more than 5 seconds
                 )
-            self.last_time_clicked = (
+            user.last_time_clicked = (
                 current_time  # set last time clicked to current time
             )
             user.add_xp(
@@ -420,7 +420,7 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                     * (1 + task.streak / 10)
                     * due_multiplier
                     * (1 + user.combo_multiplier / 10)
-                    * time_multiplier
+                    * user.time_multiplier
                     * (1 + 5.0 / (abs(time_difference_seconds) + 1.0))
                 )
                 + user.combo_multiplier
