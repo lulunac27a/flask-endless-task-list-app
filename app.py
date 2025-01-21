@@ -3,7 +3,7 @@ A task list app written in Flask with levels and experience points (XP).
 """
 
 import calendar
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 import math
 import os
 from typing import Union
@@ -69,6 +69,15 @@ class User(db.Model):
     last_task_completed: int = db.Column(
         db.Integer, default=-1, server_default=text("-1"), nullable=False
     )  # user last task completion ID
+    last_time_clicked: datetime = db.Column(
+        db.DateTime,
+        default=datetime.now(timezone.utc),
+        server_default=func.current_timestamp(),
+        nullable=False,
+    )  # user last time clicked
+    time_multiplier: int = db.Column(
+        db.Integer, default=1, server_default="1", nullable=False
+    )  # user time multiplier
 
     def add_xp(self, amount: float) -> None:  # add XP
         """
@@ -374,6 +383,28 @@ def complete_task(task_id) -> Response:  # complete task from task ID
             user.last_task_completed = (
                 task.id
             )  # set user last task completed to task ID
+            current_time: datetime = datetime.now(
+                timezone.utc)  # get current time
+            last_time_clicked_aware: datetime = self.last_time_clicked.replace(
+                tzinfo=timezone.utc
+            )  # set timezone to UTC
+            time_difference: timedelta = (
+                current_time - last_time_clicked_aware
+            )  # get time difference
+            time_difference_seconds: float = (
+                time_difference.total_seconds()
+            )  # get time difference in seconds
+            if (
+                abs(time_difference_seconds) < 5
+            ):  # check if time difference is less than 5 seconds
+                self.time_multiplier += 1  # increase time multiplier
+            else:
+                self.time_multiplier = (
+                    1  # reset time multiplier if time difference is more than 5 seconds
+                )
+            self.last_time_clicked = (
+                current_time  # set last time clicked to current time
+            )
             user.add_xp(
                 round(
                     task.priority
