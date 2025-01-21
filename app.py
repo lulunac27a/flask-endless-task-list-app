@@ -551,6 +551,22 @@ def init_db() -> None:  # initialize database
                     "ALTER TABLE user ADD COLUMN last_task_completed INT NOT NULL DEFAULT -1"
                 )
             )  # create last task completed column
+        if "last_time_clicked" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if last time clicked column is not in the user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN last_time_clicked TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP"
+                )
+            )  # create last time clicked column
+        if "time_multiplier" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if time multiplier column is not in the user table
+            db.session.execute(
+                text(
+                    "ALTER TABLE user ADD COLUMN time_multiplier INT NOT NULL DEFAULT 1"
+                )
+            )  # create time multipler column
         if User.query.count() == 0:  # if there are no users
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to the database
