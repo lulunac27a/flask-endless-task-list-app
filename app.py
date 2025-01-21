@@ -420,6 +420,8 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                     * (1 + task.streak / 10)
                     * due_multiplier
                     * (1 + user.combo_multiplier / 10)
+                    * time_multiplier
+                    * (1 + 5.0 / (abs(time_difference_seconds) + 1.0))
                 )
                 + user.combo_multiplier
             )  # add XP
