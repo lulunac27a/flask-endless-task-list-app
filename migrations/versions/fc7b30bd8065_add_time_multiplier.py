@@ -8,6 +8,7 @@ Create Date: 2025-01-20 21:04:17.318407
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import func
 
 
 # revision identifiers, used by Alembic.
@@ -39,7 +40,7 @@ def upgrade():
             sa.Column(
                 "last_time_clicked",
                 sa.DateTime(),
-                server_default=sa.text("(CURRENT_TIMESTAMP)"),
+                server_default=sa.text(func.current_timestamp()),
                 nullable=False,
             )
         )
