@@ -40,7 +40,7 @@ def upgrade():
             sa.Column(
                 "last_time_clicked",
                 sa.DateTime(),
-                server_default=sa.text(func.current_timestamp()),
+                server_default=sa.text("CURRENT_TIMESTAMP"),
                 nullable=False,
             )
         )
