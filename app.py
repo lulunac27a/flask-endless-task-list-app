@@ -444,13 +444,10 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                 current_time  # set last time clicked to current time
             )
             user.rating += max(
-                (
-                    (10 + math.log(max(user.rating + 100, 100)) ** 2)
-                    * repeat_multiplier
-                    * (1 - due_multiplier)
-                    if due_multiplier < 1
-                    else (due_multiplier - 1) / max(user.daily_tasks_completed, 1)
-                ),
+                (10 + math.log(max(user.rating + 100, 100)) ** 2)
+                * repeat_multiplier
+                * ((1 - due_multiplier) if due_multiplier < 1 else (due_multiplier - 1))
+                / max(user.daily_tasks_completed, 1),
                 0,
             )  # increase user rating score based on user rating, task repeat multiplier and number of tasks completed today
             user.rating = max(
