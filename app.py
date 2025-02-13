@@ -78,6 +78,9 @@ class User(db.Model):
     time_multiplier: int = db.Column(
         db.Integer, default=1, server_default="1", nullable=False
     )  # user time multiplier
+    rating: float = db.Column(
+        db.Float, default=0, server_default="0", nullable=False
+    )  # user rating score
 
     def add_xp(self, amount: float) -> None:  # add XP
         """
@@ -348,6 +351,9 @@ def complete_task(task_id) -> Response:  # complete task from task ID
         active_tasks: int = Task.query.filter_by(
             completed=False
         ).count()  # get number of active tasks (tasks that are not completed)
+        overdue_tasks: int = Task.query.filter(
+            Task.due_date < date.today()
+        ).count()  # get number of overdue tasks (due date is before today)
         if user is not None:  # if user exists
             user.tasks_completed += 1  # increase the number of tasks completed by 1
             day_difference: timedelta = datetime.now() - datetime(
@@ -380,6 +386,21 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                 user.combo_multiplier += 1  # increase combo multipler by 1
             else:
                 user.combo_multiplier = 0  # reset combo multiplier to 0
+            if day_difference.days >= 1:  # check if at least 1 day of inactivity
+                for i in range(
+                    day_difference.days
+                ):  # repeat for each day of inactivity
+                    user.rating -= max(
+                        (
+                            math.sqrt(max(user.rating, 0))
+                            * (1 + math.log(max(i + 1, 1)))
+                            * (1 + math.log(max.max(overdue_tasks + 1, 1)))
+                        ),
+                        0,
+                    )  # decrease the user rating score for each day of inactivity
+                    user.rating = max(
+                        user.rating, 0
+                    )  # make sure the user rating score is not below 0
             user.last_task_completed = (
                 task.id
             )  # set user last task completed to task ID
@@ -405,25 +426,41 @@ def complete_task(task_id) -> Response:  # complete task from task ID
             user.last_time_clicked = (
                 current_time  # set last time clicked to current time
             )
+            user.rating += max(
+                (
+                    (10 + math.log(max(user.rating + 100, 100)) ** 2)
+                    * repeat_multiplier
+                    * (1 - date_multiplier)
+                    if date_multiplier < 1
+                    else (date_multiplier - 1) / max(user.daily_tasks_completed, 1)
+                ),
+                0,
+            )  # increase user rating score based on user rating, task repeat multiplier and number of tasks completed today
+            user.rating = max(
+                user.rating, 0
+            )  # make sure the user rating score is not below 0
             user.add_xp(
                 round(
-                    task.priority
-                    * task.difficulty
-                    * task.repeat_often
-                    * repeat_multiplier
-                    * (1 + math.log(max(task.times_completed, 1)))
-                    * (1 + math.log(max(user.tasks_completed, 1)))
-                    * (1 + math.log(max(active_tasks, 1)))
-                    * (1 + user.daily_streak / 10)
-                    * (1 + user.daily_tasks_completed / 10)
-                    * (1 + math.log(max(user.days_completed, 1)))
-                    * (1 + task.streak / 10)
-                    * due_multiplier
-                    * (1 + user.combo_multiplier / 10)
-                    * user.time_multiplier
-                    * (1 + 5.0 / (abs(time_difference_seconds) + 1.0))
+                    (
+                        task.priority
+                        * task.difficulty
+                        * task.repeat_often
+                        * repeat_multiplier
+                        * (1 + math.log(max(task.times_completed, 1)))
+                        * (1 + math.log(max(user.tasks_completed, 1)))
+                        * (1 + math.log(max(active_tasks, 1)))
+                        * (1 + user.daily_streak / 10)
+                        * (1 + user.daily_tasks_completed / 10)
+                        * (1 + math.log(max(user.days_completed, 1)))
+                        * (1 + task.streak / 10)
+                        * due_multiplier
+                        * (1 + user.combo_multiplier / 10)
+                        * user.time_multiplier
+                        * (1 + 5.0 / (abs(time_difference_seconds) + 1.0))
+                        + user.combo_multiplier
+                    )
+                    * (1 + math.log(max(user.rating + 1, 1)))
                 )
-                + user.combo_multiplier
             )  # add XP
             db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
@@ -567,6 +604,12 @@ def init_db() -> None:  # initialize database
                     "ALTER TABLE user ADD COLUMN time_multiplier INT NOT NULL DEFAULT 1"
                 )
             )  # create time multipler column
+        if "rating" not in [
+            column["name"] for column in db.inspect(db.engine).get_columns("user")
+        ]:  # check if rating score column is not in the user table
+            db.session.execute(
+                text("ALTER TABLE user ADD COLUMN rating FLOAT NOT NULL DEFAULT 0")
+            )  # create rating score column
         if User.query.count() == 0:  # if there are no users
             new_user = User(username="Player")  # create new user
             db.session.add(new_user)  # add new user to the database
