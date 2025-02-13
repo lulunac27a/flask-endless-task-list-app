@@ -205,8 +205,22 @@ def short_numeric_filter(
     )  # print abbreviated output
 
 
-# add filter to Jinja
-app.jinja_env.filters["short_numeric"] = short_numeric_filter
+app.jinja_env.filters["short_numeric"] = (
+    short_numeric_filter  # add short numeric filter to Jinja
+)
+
+
+# round number with commas filter
+@app.template_filter("round_number_with_commas")
+def round_number_with_commas_filter(
+    value: Union[int, float]
+) -> str:  # round number with commas
+    return f"{round(value):,}"
+
+
+app.jinja_env.filters["round_number_with_commas"] = (
+    round_number_with_commas_filter  # add round number with commas filter to Jinja
+)
 
 
 @app.route("/")
