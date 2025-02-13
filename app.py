@@ -365,9 +365,6 @@ def complete_task(task_id) -> Response:  # complete task from task ID
         active_tasks: int = Task.query.filter_by(
             completed=False
         ).count()  # get number of active tasks (tasks that are not completed)
-        overdue_tasks: int = Task.query.filter(
-            Task.due_date < date.today()
-        ).count()  # get number of overdue tasks (due date is before today)
         if user is not None:  # if user exists
             user.tasks_completed += 1  # increase the number of tasks completed by 1
             day_difference: timedelta = datetime.now() - datetime(
@@ -391,9 +388,6 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                 user.daily_tasks_completed += (
                     1  # increase the number of tasks completed in a day by 1
                 )
-            user.last_completion_date = (
-                datetime.now()
-            )  # set user last completion date to today
             if (
                 task.id == user.last_task_completed
             ):  # if the task is the last task completed
@@ -404,6 +398,12 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                 for i in range(
                     day_difference.days
                 ):  # repeat for each day of inactivity
+                    inactivity_date: datetime = datetime.combine(
+                        user.last_completion_date, datetime.min.time()
+                    ) + timedelta(days=i)
+                    overdue_tasks: int = Task.query.filter(
+                        Task.due_date < inactivity_date.date()
+                    ).count()  # get number of overdue tasks (due date is before today)
                     user.rating -= max(
                         (
                             math.sqrt(max(user.rating, 0))
@@ -415,6 +415,9 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                     user.rating = max(
                         user.rating, 0
                     )  # make sure the user rating score is not below 0
+            user.last_completion_date = (
+                datetime.now()
+            )  # set user last completion date to today
             user.last_task_completed = (
                 task.id
             )  # set user last task completed to task ID
