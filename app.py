@@ -709,6 +709,6 @@ def init_db() -> None:  # initialize database
         db.session.commit()  # commit database changes
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" or __name__ == "app":
     init_db()  # initialize database
     app.run(debug=True, port=8081)  # run the server at port 8081
