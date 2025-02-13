@@ -611,7 +611,23 @@ def init_db() -> None:  # initialize database
                 text("ALTER TABLE user ADD COLUMN rating FLOAT NOT NULL DEFAULT 0")
             )  # create rating score column
         if User.query.count() == 0:  # if there are no users
-            new_user = User(username="Player")  # create new user
+            new_user = User(
+                username="Player",
+                xp=0,
+                xp_required=1,
+                total_xp=0,
+                level=1,
+                tasks_completed=0,
+                last_completion_date=func.current_date(),
+                daily_streak=0,
+                daily_tasks_completed=0,
+                days_completed=0,
+                combo_multiplier=0,
+                last_task_completed=-1,
+                last_time_clicked=func.current_timestamp(),
+                time_multiplier=1,
+                rating=0,
+            )  # create new user
             db.session.add(new_user)  # add new user to the database
             db.session.commit()  # commit database changes
         if "original_due_date" not in [
