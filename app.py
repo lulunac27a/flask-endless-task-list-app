@@ -408,7 +408,7 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                         (
                             math.sqrt(max(user.rating, 0))
                             * (1 + math.log(max(i + 1, 1)))
-                            * (1 + math.log(max.max(overdue_tasks + 1, 1)))
+                            * (1 + math.log(max(overdue_tasks + 1, 1)))
                         ),
                         0,
                     )  # decrease the user rating score for each day of inactivity
@@ -444,9 +444,9 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                 (
                     (10 + math.log(max(user.rating + 100, 100)) ** 2)
                     * repeat_multiplier
-                    * (1 - date_multiplier)
-                    if date_multiplier < 1
-                    else (date_multiplier - 1) / max(user.daily_tasks_completed, 1)
+                    * (1 - due_multiplier)
+                    if due_multiplier < 1
+                    else (due_multiplier - 1) / max(user.daily_tasks_completed, 1)
                 ),
                 0,
             )  # increase user rating score based on user rating, task repeat multiplier and number of tasks completed today
