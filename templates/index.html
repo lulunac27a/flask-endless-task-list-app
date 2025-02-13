@@ -22,6 +22,7 @@
       Total XP: {{ user.total_xp | short_numeric }}<br />
       {{ user.xp | short_numeric }} / {{ user.xp_required | short_numeric }}
       XP<br />
+      Rating: {{ user.rating | round_number_with_commas }}<br />
       <div class="progress-container">
         <!--get current level progress-->
         <progress value="{{ user.xp }}" max="{{ user.xp_required }}"></progress>
