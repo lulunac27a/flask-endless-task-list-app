@@ -1,114 +1,119 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <title>Endless Task List App using Flask</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/index.css') }}"
-    />
-  </head>
-  <body>
-    <h1>Endless Task List App using Flask</h1>
-    <ul>
-      {% with messages = get_flashed_messages() %}<!--get flashed messages to display-->
-      {% if messages %}
-      <div class="popup-message">
-        {% for message in messages %}
-        <p>{{ message }}</p>
-        {% endfor %}
-      </div>
-      {% endif %} {% endwith %} {{ user.username }}:<br />
-      Level {{ user.level }}<br />
-      Total XP: {{ user.total_xp | short_numeric }}<br />
-      {{ user.xp | short_numeric }} / {{ user.xp_required | short_numeric }}
-      XP<br />
-      Rating: {{ user.rating | round_number_with_commas }}<br />
-      <div class="progress-container">
-        <!--get current level progress-->
-        <progress value="{{ user.xp }}" max="{{ user.xp_required }}"></progress>
-        <div class="progress-text">
-          {{ (user.xp / user.xp_required * 100) | short_numeric }}%
-        </div>
-      </div>
-      Add New Task<br />
-      <form action="{{ url_for('add_task') }}" method="post">
-        <!--form to add task-->
-        <label for="name">Name: </label
-        ><input
-          type="text"
-          id="name"
-          name="name"
-          maxlength="80"
-          required
-        /><br />
-        <label for="due_date">Due date: </label
-        ><input
-          type="date"
-          id="due_date"
-          name="due_date"
-          min="{{ today }}"
-          max="9999-12-31"
-          value="{{ today }}"
-          required
-        /><br />
-        <label for="priority">Priority: </label
-        ><select id="priority" name="priority">
-          <option value="1" selected>Low</option>
-          <option value="2">Medium</option>
-          <option value="3">High</option></select
-        ><br />
-        <label for="difficulty">Difficulty: </label
-        ><select id="difficulty" name="difficulty">
-          <option value="1" selected>Easy</option>
-          <option value="2">Medium</option>
-          <option value="3">Hard</option></select
-        ><br />
-        <label for="repeat_interval">Repeat every: </label
-        ><input
-          type="number"
-          id="repeat_interval"
-          name="repeat_interval"
-          min="1"
-          step="1"
-          value="1"
-        /><br />
-        <label for="repeat_often">Repeat interval: </label
-        ><select id="repeat_often" name="repeat_often">
-          <option value="1">Daily</option>
-          <option value="2">Weekly</option>
-          <option value="3">Monthly</option>
-          <option value="4">Yearly</option>
-          <option value="5" selected>Once</option></select
-        ><br />
-        <input type="submit" value="Add Task" />
-      </form>
-      <ul>
-        {% for task in tasks %}<!--repeat for each task in task list-->
-        <li>
-          {{ task.name }}<br />
-          Due: {{ task.due_date }}
-        </li>
-        Priority: {% if task.priority == 1 %} Low {% elif task.priority == 2 %}
-        Medium {% elif task.priority == 3 %} High {% endif %}<br />
-        Difficulty: {% if task.difficulty == 1 %} Easy {% elif task.difficulty
-        == 2 %} Medium {% elif task.difficulty == 3 %} Hard {% endif %}<br />
-        Repeat: {% if task.repeat_often != 5 %} {{ task.repeat_interval }} {%
-        endif %} {% if task.repeat_often == 1 %} Day{% if task.repeat_interval >
-        1 %}s {% endif %}{% elif task.repeat_often == 2 %} Week{% if
-        task.repeat_interval > 1 %}s {% endif %}{% elif task.repeat_often == 3
-        %} Month{% if task.repeat_interval > 1 %}s {% endif %}{% elif
-        task.repeat_often == 4 %} Year{% if task.repeat_interval > 1 %}s {%
-        endif %}{% elif task.repeat_often == 5 %} Once {% endif %}<br />
-        {% if not task.completed %}<!--show complete button if task is not completed-->
-        <a href="/complete_task/{{ task.id }}">Complete</a>
-        {% endif %}
-        <a
-          href="/delete_task/{{ task.id }}"
-          onclick="return {{ 'confirm(\'Are you sure you want to delete this task?\')' if not task.completed else 'true' }}"
-          >Delete</a
-        ><!--confirm user to delete the task if task is not completed, if task is completed don't alert user to confirm task deletion-->
-        {% endfor %}
-      </ul>
-    </ul>
-  </body>
+    <head>
+        <title>Endless Task List App using Flask</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/index.css') }}"
+        />
+    </head>
+    <body>
+        <h1>Endless Task List App using Flask</h1>
+        <ul>
+            {% with messages = get_flashed_messages() %}<!--get flashed messages to display-->
+            {% if messages %}
+            <div class="popup-message">
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %} {% endwith %} {{ user.username }}:<br />
+            Level {{ user.level }}<br />
+            Total XP: {{ user.total_xp | short_numeric }}<br />
+            {{ user.xp | short_numeric }} / {{ user.xp_required | short_numeric
+            }} XP<br />
+            Rating: {{ user.rating | round_number_with_commas }}<br />
+            <div class="progress-container">
+                <!--get current level progress-->
+                <progress
+                    value="{{ user.xp }}"
+                    max="{{ user.xp_required }}"
+                ></progress>
+                <div class="progress-text">
+                    {{ (user.xp / user.xp_required * 100) | short_numeric }}%
+                </div>
+            </div>
+            Add New Task<br />
+            <form action="{{ url_for('add_task') }}" method="post">
+                <!--form to add task-->
+                <label for="name">Name: </label
+                ><input
+                    type="text"
+                    id="name"
+                    name="name"
+                    maxlength="80"
+                    required
+                /><br />
+                <label for="due_date">Due date: </label
+                ><input
+                    type="date"
+                    id="due_date"
+                    name="due_date"
+                    min="{{ today }}"
+                    max="9999-12-31"
+                    value="{{ today }}"
+                    required
+                /><br />
+                <label for="priority">Priority: </label
+                ><select id="priority" name="priority">
+                    <option value="1" selected>Low</option>
+                    <option value="2">Medium</option>
+                    <option value="3">High</option></select
+                ><br />
+                <label for="difficulty">Difficulty: </label
+                ><select id="difficulty" name="difficulty">
+                    <option value="1" selected>Easy</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Hard</option></select
+                ><br />
+                <label for="repeat_interval">Repeat every: </label
+                ><input
+                    type="number"
+                    id="repeat_interval"
+                    name="repeat_interval"
+                    min="1"
+                    step="1"
+                    value="1"
+                /><br />
+                <label for="repeat_often">Repeat interval: </label
+                ><select id="repeat_often" name="repeat_often">
+                    <option value="1">Daily</option>
+                    <option value="2">Weekly</option>
+                    <option value="3">Monthly</option>
+                    <option value="4">Yearly</option>
+                    <option value="5" selected>Once</option></select
+                ><br />
+                <input type="submit" value="Add Task" />
+            </form>
+            <ul>
+                {% for task in tasks %}<!--repeat for each task in task list-->
+                <li>
+                    {{ task.name }}<br />
+                    Due: {{ task.due_date }}
+                </li>
+                Priority: {% if task.priority == 1 %} Low {% elif task.priority
+                == 2 %} Medium {% elif task.priority == 3 %} High {% endif %}<br />
+                Difficulty: {% if task.difficulty == 1 %} Easy {% elif
+                task.difficulty == 2 %} Medium {% elif task.difficulty == 3 %}
+                Hard {% endif %}<br />
+                Repeat: {% if task.repeat_often != 5 %} {{ task.repeat_interval
+                }} {% endif %} {% if task.repeat_often == 1 %} Day{% if
+                task.repeat_interval > 1 %}s {% endif %}{% elif
+                task.repeat_often == 2 %} Week{% if task.repeat_interval > 1 %}s
+                {% endif %}{% elif task.repeat_often == 3 %} Month{% if
+                task.repeat_interval > 1 %}s {% endif %}{% elif
+                task.repeat_often == 4 %} Year{% if task.repeat_interval > 1 %}s
+                {% endif %}{% elif task.repeat_often == 5 %} Once {% endif %}<br />
+                {% if not task.completed %}<!--show complete button if task is not completed-->
+                <a href="/complete_task/{{ task.id }}">Complete</a>
+                {% endif %}
+                <a
+                    href="/delete_task/{{ task.id }}"
+                    onclick="return {{ 'confirm(\'Are you sure you want to delete this task?\')' if not task.completed else 'true' }}"
+                    >Delete</a
+                ><!--confirm user to delete the task if task is not completed, if task is completed don't alert user to confirm task deletion-->
+                {% endfor %}
+            </ul>
+        </ul>
+    </body>
 </html>
