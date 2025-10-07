@@ -12,3 +12,8 @@ This app is an endless task list application with levels and experience points (
 6. Apply the migration using `flask db upgrade`.
 7. Run the app using `flask run`.
 8. Open `localhost:8081` on your web browser.
+
+## Features
+- Levels and XP (Experience Points) system.
+- Repeatable tasks.
+- XP multiplier for tasks based on streaks.
