@@ -163,9 +163,9 @@ class Task(db.Model):
     )  # user relationship
 
 
-@app.template_filter("short_numeric")  # short numeric filter
+@app.template_filter("short_numeric")  # short numeric format filter
 def short_numeric_filter(
-    value: Union[int, float]
+    value: Union[int, float],
 ) -> str:  # get number in short numeric form with abbreviations
     """
     Get the abbreviated numeric value.
@@ -202,18 +202,18 @@ def short_numeric_filter(
         exponent += 1
     return (
         f"{mantissa:.3g}{units[exponent]}" if value >= 1000 else f"{value:.0f}"
-    )  # print abbreviated output
+    )  # print abbreviated numeric output
 
 
 app.jinja_env.filters["short_numeric"] = (
-    short_numeric_filter  # add short numeric filter to Jinja
+    short_numeric_filter  # add short numeric format filter to Jinja
 )
 
 
 # round number with commas filter
 @app.template_filter("round_number_with_commas")
 def round_number_with_commas_filter(
-    value: Union[int, float]
+    value: Union[int, float],
 ) -> str:  # round number with commas
     return f"{round(value):,}"
 
