@@ -17,4 +17,4 @@ This app is an endless task list application with levels and experience points (
 - Levels and XP (Experience Points) system.
 - Repeatable tasks.
 - XP multiplier for tasks based on streaks.
-- Xp multiplier for user based on user streaks, combos and more.
+- XP multiplier for user based on user streaks, combos and more.
