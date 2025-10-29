@@ -475,7 +475,7 @@ def complete_task(task_id) -> Response:  # complete task from task ID
                     )
                     * (1 + math.log(max(user.rating + 1, 1)))
                 )
-            )  # add XP
+            )  # add XP based on task and user statistics
             db.session.commit()  # commit database changes
     return redirect(url_for("index"))  # redirect to index page template
 
