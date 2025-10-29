@@ -1,51 +1,43 @@
-* {
-    /*global styles*/
-    font-family:
-        system-ui, Arial, Helvetica, sans-serif; /*set default font to system-based font*/
-    line-height: 125%; /*set default line height to 125%*/
+* {/*global styles*/
+  font-family: system-ui, Arial, Helvetica, sans-serif;/*set default font to system-based font*/
+  line-height: 125%;/*set default line height to 125%*/
 }
-progress {
-    /*progress element styles*/
-    height: 50px;
-    padding: 5px;
-    max-width: 300px;
-    width: 100%;
-    accent-color: #4888c8;
+progress {/*progress element styles*/
+  height: 50px;
+  padding: 5px;
+  max-width: 300px;
+  width: 100%;
+  accent-color: #4888c8;
 }
-.progress-container {
-    /*progress container styles*/
-    position: relative;
-    width: 100%;
-    max-width: 300px;
+.progress-container {/*progress container styles*/
+  position: relative;
+  width: 100%;
+  max-width: 300px;
 }
-.progress-bar {
-    /*progress bar styles*/
-    width: 100%;
+.progress-bar {/*progress bar styles*/
+  width: 100%;/*use full width*/
 }
-.progress-text {
-    /*progress text styles*/
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    top: 15px;
-    color: black;
+.progress-text {/*progress text styles*/
+  position: absolute;
+  width: 100%;/*use full width*/
+  text-align: center;/*center align text*/
+  top: 15px;
+  color: black;
 }
-.popup-message {
-    /*popup message styles*/
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    border: 1px solid #999;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+.popup-message {/*popup message styles*/
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border: 1px solid #999;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.popup-message p {
-    /*popup message paragraph styles*/
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+.popup-message p {/*popup message paragraph styles*/
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;/*dark gray*/
 }
