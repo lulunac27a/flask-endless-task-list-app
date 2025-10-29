@@ -8,7 +8,7 @@ progress {
     /*progress element styles*/
     height: 50px;
     padding: 5px;
-    max-width: 300px;
+    max-width: 300px; /*300-pixel maximum width*/
     width: 100%; /*use full width*/
     accent-color: #4888c8;
 }
