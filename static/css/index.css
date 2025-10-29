@@ -1,9 +1,11 @@
 * {
     /*global styles*/
-    font-family: system-ui, Arial, Helvetica, sans-serif;
-    line-height: 125%;
+    font-family:
+        system-ui, Arial, Helvetica, sans-serif; /*set default font to system-based font*/
+    line-height: 125%; /*set default line height to 125%*/
 }
 progress {
+    /*progress element styles*/
     height: 50px;
     padding: 5px;
     max-width: 300px;
@@ -11,14 +13,17 @@ progress {
     accent-color: #4888c8;
 }
 .progress-container {
+    /*progress container styles*/
     position: relative;
     width: 100%;
     max-width: 300px;
 }
 .progress-bar {
+    /*progress bar styles*/
     width: 100%;
 }
 .progress-text {
+    /*progress text styles*/
     position: absolute;
     width: 100%;
     text-align: center;
@@ -26,6 +31,7 @@ progress {
     color: black;
 }
 .popup-message {
+    /*popup message styles*/
     position: absolute;
     top: 20px;
     right: 20px;
@@ -38,6 +44,7 @@ progress {
 }
 
 .popup-message p {
+    /*popup message paragraph styles*/
     font-size: 18px;
     font-weight: bold;
     color: #333;
