@@ -9,14 +9,14 @@ progress {
     height: 50px;
     padding: 5px;
     max-width: 300px;
-    width: 100%;
+    width: 100%; /*use full width*/
     accent-color: #4888c8;
 }
 .progress-container {
     /*progress container styles*/
     position: relative;
-    width: 100%;
-    max-width: 300px;
+    width: 100%; /*use full width*/
+    max-width: 300px; /*300-pixel maximum width*/
 }
 .progress-bar {
     /*progress bar styles*/
