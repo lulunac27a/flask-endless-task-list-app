@@ -13,7 +13,7 @@
             {% with messages = get_flashed_messages() %}<!--get flashed messages to display-->
             {% if messages %}
             <div class="popup-message">
-                <!--display popup messages-->
+                <!--display popup messages from flashed messages-->
                 {% for message in messages %}
                 <p>{{ message }}</p>
                 {% endfor %}
